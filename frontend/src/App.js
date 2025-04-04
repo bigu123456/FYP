@@ -7,7 +7,11 @@ import OrderPage from "./elements/OrderPage";
 import Vehicleslists from "./elements/Vehicleslists";
 import SelectDriverPage from "./elements/SelectDriverPage";
 import Booking from "./Adminpage/Booking";
+<<<<<<< HEAD
 import PaymentForm from "./elements/PaymentForm";
+=======
+
+>>>>>>> d14fd4408f1f90a47e63f3c9c233a1d8bf58f827
 // Admin Pages
 import Admin from "./Adminpage/Admin";
 import Adddriver from "./Adminpage/Adddriver";
@@ -20,7 +24,10 @@ import AdminLayout from "./layouts/AdminLayout";
 
 import PrivateRoute from './PrivateRoute';  
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d14fd4408f1f90a47e63f3c9c233a1d8bf58f827
 const App = () => {
   return (
     <Router>
@@ -33,7 +40,10 @@ const App = () => {
         <Route path="/contactus" element={<Contactus />} />
         <Route path="/order/:id" element={<OrderPage />} />
         <Route path="/select-driver/:id" element={<SelectDriverPage />} />
+<<<<<<< HEAD
         <Route path="/paymentForm" element={<PaymentForm/>} />
+=======
+>>>>>>> d14fd4408f1f90a47e63f3c9c233a1d8bf58f827
 
         {/* Admin Routes (Protected with PrivateRoute) */}
         <Route element={<PrivateRoute />}>
