@@ -6,7 +6,7 @@ import MailLogo from "../images/mail.svg";
 import PasswordLogo from "../images/password.svg";
 import GoogleLogo from "../images/google.svg";
 import Loginvalidation from './Loginvalidation';
-import { jwtDecode } from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -27,7 +27,7 @@ const LoginPage = () => {
     sessionStorage.removeItem('email');
 
     // Force component to re-render
-    setKey(prev => prev + 1);
+    setKey((prev) => prev + 1);
   }, []);
 
   const handleLogin = async (e) => {
@@ -44,59 +44,70 @@ const LoginPage = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
-      console.log("API Response:", data); //  Log API response
+      console.log("API Response:", data); // Log API response
 
       if (!response.ok) throw new Error(data.message || 'Login failed');
 
-      // Check if token is received
-      if (!data.token) {
-        console.error("Token is missing from response!");
-        setError("Token is missing from response!");
-        return;
-      }
+      if (data.token) {
+        console.log("Received Token:", data.token); // Log raw token
+        
 
-      console.log("Received Token:", data.token); // Log raw token
+        // Decode JWT token
+        const decodedToken = jwtDecode(data.token);
+        console.log("Decoded Token:", decodedToken); // Log decoded token
 
-      // Decode JWT token
-      const decodedToken = jwtDecode(data.token);
-      console.log("Decoded Token:", decodedToken); //  Log decoded token
+        if (!decodedToken.role) {
+          console.error("User role is missing from the token!");
+          setError('User role is missing from the token');
+          return;
+        }
 
-      if (!decodedToken.role) {
-        console.error("User role is missing from the token!");
-        setError('User role is missing from the token');
-        return;
-      }
+        // Store values in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userRole", decodedToken.role);
 
-      // Store values in localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userRole", decodedToken.role);
+        console.log("Stored in localStorage:");
+        console.log("token:", localStorage.getItem("token"));
+        console.log("isAuthenticated:", localStorage.getItem("isAuthenticated"));
+        console.log("userRole:", localStorage.getItem("userRole"));
 
-      console.log("Stored in localStorage:");
-      console.log("token:", localStorage.getItem("token"));
-      console.log("isAuthenticated:", localStorage.getItem("isAuthenticated"));
-      console.log("userRole:", localStorage.getItem("userRole"));
-
-      // Navigate based on user role
-      if (decodedToken.role === 'admin') {
-        navigate('/Admin'); 
+       
+        if (decodedToken.role === 'admin') {
+          navigate('/Admin'); // Admin page
+        } else {
+          const response = await fetch('http://localhost:5000/api/auth/generateOtp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+        
+          const res = await response.json(); // Assuming the response is JSON
+        
+          if (res) {
+            navigate('/otp-verification', { state: { email } });
+          } else {
+            alert('failed');
+          }
+        }
       } else {
-        navigate('/'); 
+        setError("Token is missing from response!");
+        console.error("Token is missing from response!");
       }
 
-      // Clear form fields
+      // Clear form fields after successful login
       setEmail('');
       setPassword('');
     } catch (err) {
       console.error("Login Error:", err.message);
-      setError(err.message);
+      setError(err.message); // Display error message if login fails
     }
   };
 

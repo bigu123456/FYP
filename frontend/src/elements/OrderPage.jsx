@@ -86,7 +86,7 @@ const OrderPage = () => {
       }
 
       alert("Order placed successfully!");
-      navigate("/orders"); 
+      navigate("/Bookingpage"); 
     } catch (error) {
       console.error("Error placing order:", error);
       alert("Failed to place order. Please try again.");
@@ -97,7 +97,7 @@ const OrderPage = () => {
     <>
       <Navbar />
       <div className="p-6 bg-gray-100 min-h-screen">
-        <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg flex items-center">
+        <div className="max-w-5xl mx-auto bg-black p-8 rounded-lg shadow-lg flex items-center text-white">
           <div className="w-1/2 mr-6">
             <img
               src={`http://localhost:5000${vehicle.image_url}`}
@@ -105,18 +105,18 @@ const OrderPage = () => {
               className="w-full h-auto rounded-lg shadow-md"
             />
           </div>
-          <div className="w-1/2 text-gray-700 space-y-3">
-            <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
+          <div className="w-1/2 text-gray-200 space-y-5">
+            <h2 className="text-4xl font-bold mb-6 text-center">
               Vehicle Order Details
             </h2>
             {vehicle ? (
               <>
-                <p><strong>Brand:</strong> {vehicle.brand}</p>
-                <p><strong>Model:</strong> {vehicle.model}</p>
-                <p><strong>Category:</strong> {vehicle.category}</p>
-                <p><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
-                <p><strong>Rental Price:</strong> ${vehicle.rental_price} / day</p>
-                <p><strong>Available:</strong> {vehicle.availability ? "✅ Available" : "❌ Not Available"}</p>
+                <p className="text-lg"><strong>Brand:</strong> {vehicle.brand}</p>
+                <p className="text-lg"><strong>Model:</strong> {vehicle.model}</p>
+                <p className="text-lg"><strong>Category:</strong> {vehicle.category}</p>
+                <p className="text-lg"><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
+                <p className="text-lg"><strong>Rental Price:</strong> ${vehicle.rental_price} / day</p>
+                <p className="text-lg"><strong>Available:</strong> {vehicle.availability ? "✅ Available" : "❌ Not Available"}</p>
 
                 {/* Choose Driver Button */}
                 <button
@@ -128,10 +128,10 @@ const OrderPage = () => {
 
                 {/* Driver Dropdown (Optional) */}
                 <div className="mt-4">
-                  <label htmlFor="driverSelect" className="block text-gray-700">Select Driver (Optional)</label>
+                  <label htmlFor="driverSelect" className="block text-gray-200">Select Driver (Optional)</label>
                   <select
                     id="driverSelect"
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-3 border border-gray-300 rounded-md"
                     onChange={(e) => {
                       const selectedDriver = e.target.value ? JSON.parse(e.target.value) : null;
                       setSelectedDriver(selectedDriver);
@@ -149,11 +149,11 @@ const OrderPage = () => {
 
                 {/* Pickup Location Input */}
                 <div className="mt-4">
-                  <label htmlFor="pickupLocation" className="block text-gray-700">Pickup Location</label>
+                  <label htmlFor="pickupLocation" className="block text-gray-200">Pickup Location</label>
                   <input
                     type="text"
                     id="pickupLocation"
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-3 border border-gray-300 rounded-md"
                     value={pickupLocation}
                     onChange={(e) => setPickupLocation(e.target.value)}
                     placeholder="Enter pickup location"
@@ -162,11 +162,11 @@ const OrderPage = () => {
 
                 {/* Drop-off Location Input */}
                 <div className="mt-4">
-                  <label htmlFor="dropoffLocation" className="block text-gray-700">Drop-off Location</label>
+                  <label htmlFor="dropoffLocation" className="block text-gray-200">Drop-off Location</label>
                   <input
                     type="text"
                     id="dropoffLocation"
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-3 border border-gray-300 rounded-md"
                     value={dropoffLocation}
                     onChange={(e) => setDropoffLocation(e.target.value)}
                     placeholder="Enter drop-off location"
@@ -175,11 +175,11 @@ const OrderPage = () => {
 
                 {/* Pickup Time */}
                 <div className="mt-4">
-                  <label htmlFor="pickupTime" className="block text-gray-700">Pickup Time</label>
+                  <label htmlFor="pickupTime" className="block text-gray-200">Pickup Time</label>
                   <input
                     type="datetime-local"
                     id="pickupTime"
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-3 border border-gray-300 rounded-md"
                     value={pickupTime}
                     onChange={(e) => setPickupTime(e.target.value)}
                   />
@@ -187,11 +187,11 @@ const OrderPage = () => {
 
                 {/* Drop-off Time */}
                 <div className="mt-4">
-                  <label htmlFor="dropoffTime" className="block text-gray-700">Drop-off Time</label>
+                  <label htmlFor="dropoffTime" className="block text-gray-200">Drop-off Time</label>
                   <input
                     type="datetime-local"
                     id="dropoffTime"
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-3 border border-gray-300 rounded-md"
                     value={dropoffTime}
                     onChange={(e) => setDropoffTime(e.target.value)}
                   />

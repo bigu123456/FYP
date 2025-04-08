@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db/Connection");
 
-// 📌 POST endpoint to create an order
+// POST endpoint to create an order
 router.post("/orders", async (req, res) => {
   try {
     const { 
@@ -18,18 +18,18 @@ router.post("/orders", async (req, res) => {
 
     console.log("Received order request:", req.body);
 
-    // 📌 Validate required fields
+    //  Validate required fields
     if (!vehicle_id || !user_id || !rental_price || !pickup_location || !dropoff_location || !pickup_time || !dropoff_time) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // 📌 Check if the user exists
+    //  Check if the user exists
     const userCheck = await pool.query("SELECT id FROM users WHERE id = $1", [user_id]);
     if (userCheck.rows.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // 📌 Check if the vehicle exists
+    //  Check if the vehicle exists
     const vehicleCheck = await pool.query("SELECT id, image_url FROM vehicles WHERE id = $1", [vehicle_id]);
     if (vehicleCheck.rows.length === 0) {
       return res.status(404).json({ success: false, message: "Vehicle not found" });
@@ -38,7 +38,7 @@ router.post("/orders", async (req, res) => {
     // Use the image_url from the vehicles table
     const vehicleImage = vehicleCheck.rows[0].image_url;
 
-    // 📌 Insert order into the orders table (store the vehicle image URL)
+    //  Insert order into the orders table (store the vehicle image URL)
     const result = await pool.query(
       "INSERT INTO orders (vehicle_id, user_id, driver_id, rental_price, pickup_location, dropoff_location, pickup_time, dropoff_time, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
       [
@@ -62,7 +62,7 @@ router.post("/orders", async (req, res) => {
   }
 });
 
-// 📌 GET all orders with vehicle images
+// GET all orders with vehicle images
 router.get("/orders", async (req, res) => {
   try {
     console.log("Fetching all orders with images...");

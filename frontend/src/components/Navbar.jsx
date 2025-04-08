@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link, NavLink } from 'react-router-dom'; // Import NavLink from react-router-dom
 import Logo from '../images/nav-logo.png';
 import CarIcon from '../images/caricon.svg';
 
@@ -8,32 +8,52 @@ const Navbar = () => {
     <div>
       <div className="container">
         <div className="navbar flex justify-between items-center pt-[50px] pb-[30px]">
-          <img src={Logo} alt="" className="w-16 h-auto object-cover" />
+          <img src={Logo} alt="Logo" className="w-16 h-auto object-cover" />
           <ul className="flex items-center gap-14">
             <li className="list-none">
-              <Link to="/" className="text-black size-4 font-medium active">
+              <NavLink 
+                to="/" 
+                className="text-black size-4 font-medium" 
+                activeClassName="text-[#F34900]" // Adds orange color when active
+              >
                 Home
-              </Link>
+              </NavLink>
             </li>
             <li className="list-none">
-              <Link to="/vehicleslists" className="text-black size-4 font-medium">
+              <NavLink 
+                to="/vehicleslists" 
+                className="text-black size-4 font-medium" 
+                activeClassName="text-[#F34900]" // Adds orange color when active
+              >
                 Vehicles
-              </Link>
+              </NavLink>
             </li>
             <li className="list-none">
-              <Link to="/service" className="text-black size-4 font-medium">
+              <NavLink 
+                to="/service" 
+                className="text-black size-4 font-medium" 
+                activeClassName="text-[#F34900]" // Adds orange color when active
+              >
                 Service
-              </Link>
+              </NavLink>
             </li>
             <li className="list-none">
-              <Link to="/about-us" className="text-black size-4 font-medium">
+              <NavLink 
+                to="/Aboutus" 
+                className="text-black size-4 font-medium" 
+                activeClassName="text-[#F34900]" // Adds orange color when active
+              >
                 About Us
-              </Link>
+              </NavLink>
             </li>
             <li className="list-none">
-              <Link to="/Contactus" className="text-black size-4 font-medium">
+              <NavLink 
+                to="/Contactus" 
+                className="text-black size-4 font-medium" 
+                activeClassName="text-[#F34900]" // Adds orange color when active
+              >
                 Contact Us
-              </Link>
+              </NavLink>
             </li>
           </ul>
           <div className="two-btn flex gap-4 items-center">
@@ -43,12 +63,13 @@ const Navbar = () => {
             >
               Login
             </Link>
-            <Link
-              to="/Vehiclelist"
+            <NavLink // Use NavLink for Rent Vehicle to make it active
+              to="/Vehicleslists"
               className="flex items-center gap-[8px] bg-[#F34900] pt-[8px] pb-[8px] pl-[10px] pr-[10px] text-white rounded-md"
+              activeClassName="bg-[#e83c00]" // Darker orange when active
             >
-              Rent Vehicle <img src={CarIcon} alt="" />
-            </Link>
+              Rent Vehicle <img src={CarIcon} alt="Car Icon" />
+            </NavLink>
           </div>
         </div>
       </div>

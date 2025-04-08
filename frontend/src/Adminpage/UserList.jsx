@@ -66,6 +66,31 @@ const UserList = () => {
     }
   }, []);
 
+  const handleDeleteUser = useCallback(async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete user.");
+        }
+
+        const data = await response.json();
+        alert(data.message);
+
+        // Remove deleted user from state
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+      } catch (err) {
+        alert(err.message || "Error deleting user.");
+      }
+    }
+  }, []);
+
   if (loading) {
     return <p className="text-center text-gray-600">Loading...</p>;
   }
@@ -103,19 +128,30 @@ const UserList = () => {
                     <td className="border px-6 py-4">{user.role}</td>
                     <td className="border px-6 py-4">{user.contact_number}</td>
                     <td className="border px-6 py-4">
-                      <label htmlFor={`role-${user.id}`} className="sr-only">
-                        Change Role
-                      </label>
-                      <select
-                        id={`role-${user.id}`}
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        disabled={updatingUser === user.id}
-                        className="bg-blue-100 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-200 transition duration-200 disabled:opacity-50"
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                      <div className="flex gap-2">
+                        {/* Role Change Dropdown */}
+                        <label htmlFor={`role-${user.id}`} className="sr-only">
+                          Change Role
+                        </label>
+                        <select
+                          id={`role-${user.id}`}
+                          value={user.role}
+                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                          disabled={updatingUser === user.id}
+                          className="bg-blue-100 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-blue-200 transition duration-200 disabled:opacity-50"
+                        >
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="bg-red-600 text-white p-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

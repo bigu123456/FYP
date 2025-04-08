@@ -1,7 +1,6 @@
-// src/utils/validateRegistration.js
-
 export const validateRegistration = ({ name, email, password, confirmPassword, number, city, age }) => {
   const errors = [];
+  console.log(name, email, password, confirmPassword, number, city, age);
 
   // Check if any required field is empty
   if (!name || !email || !password || !confirmPassword || !number || !city || !age) {
@@ -43,8 +42,15 @@ export const validateRegistration = ({ name, email, password, confirmPassword, n
   }
 
   // Validate contact number (optional, for example, the number should be numeric and of appropriate length)
-  if (number && isNaN(number)) {
-    errors.push("Contact number must be a valid number.");
+  if (number) {
+    if (isNaN(number)) {
+      errors.push("Contact number must be a valid number.");
+    } else {
+      const phoneRegex = /^[0-9]{10}$/;  // Checks for exactly 10 digits
+      if (!phoneRegex.test(number)) {
+        errors.push("Contact number must be exactly 10 digits.");
+      }
+    }
   }
 
   return errors;

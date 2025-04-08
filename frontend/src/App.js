@@ -3,15 +3,15 @@ import Home from "./elements/Home";
 import LoginPage from "./elements/LoginPage";
 import RegisterPage from "./elements/Register";
 import Contactus from "./elements/Contactus";
+import AboutUs from "./elements/Aboutus";
 import OrderPage from "./elements/OrderPage";
 import Vehicleslists from "./elements/Vehicleslists";
 import SelectDriverPage from "./elements/SelectDriverPage";
 import Booking from "./Adminpage/Booking";
-<<<<<<< HEAD
-import PaymentForm from "./elements/PaymentForm";
-=======
 
->>>>>>> d14fd4408f1f90a47e63f3c9c233a1d8bf58f827
+import OTPVerification from './elements/OTPVerification'; // OTPVerification Component
+import Bookingpage from "./elements/Bookingpage";
+
 // Admin Pages
 import Admin from "./Adminpage/Admin";
 import Adddriver from "./Adminpage/Adddriver";
@@ -23,11 +23,6 @@ import UserList from "./Adminpage/UserList";
 import AdminLayout from "./layouts/AdminLayout";
 
 import PrivateRoute from './PrivateRoute';  
-
-<<<<<<< HEAD
-
-=======
->>>>>>> d14fd4408f1f90a47e63f3c9c233a1d8bf58f827
 const App = () => {
   return (
     <Router>
@@ -38,12 +33,13 @@ const App = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/vehicleslists" element={<Vehicleslists />} />
         <Route path="/contactus" element={<Contactus />} />
+        <Route path ="/Aboutus" element={<AboutUs/>}/>
         <Route path="/order/:id" element={<OrderPage />} />
         <Route path="/select-driver/:id" element={<SelectDriverPage />} />
-<<<<<<< HEAD
-        <Route path="/paymentForm" element={<PaymentForm/>} />
-=======
->>>>>>> d14fd4408f1f90a47e63f3c9c233a1d8bf58f827
+       
+        <Route path="/otp-verification" element={<OTPVerification />} />
+        <Route path ="Bookingpage" element={<Bookingpage/>}/>
+        
 
         {/* Admin Routes (Protected with PrivateRoute) */}
         <Route element={<PrivateRoute />}>
