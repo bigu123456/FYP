@@ -8,32 +8,40 @@ const UserList = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [updatingUser, setUpdatingUser] = useState(null); // Track updating user
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/users", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+  // Function to fetch users
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/users", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token from localStorage
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch users.");
-        }
-
-        const data = await response.json();
-        setUsers(data);
-      } catch (err) {
-        setError(err.message || "An error occurred while fetching users.");
-      } finally {
-        setLoading(false);
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error("Failed to fetch users.");
       }
-    };
 
+      const data = await response.json();
+      console.log("Fetched Users Data:", data);  // Log the response data to verify
+
+      // Set users data to state
+      setUsers(data); 
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError(err.message || "An error occurred while fetching users.");
+    } finally {
+      setLoading(false); // Set loading to false after request completes
+    }
+  };
+
+  // Fetch users on component mount
+  useEffect(() => {
     fetchUsers();
-  }, []);
+  }, []); // Empty dependency array means this runs once when the component mounts
 
+  // Handle role change
   const handleRoleChange = useCallback(async (userId, newRole) => {
     setUpdatingUser(userId);
 
@@ -42,7 +50,7 @@ const UserList = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token from localStorage
         },
         body: JSON.stringify({ role: newRole }),
       });
@@ -66,13 +74,14 @@ const UserList = () => {
     }
   }, []);
 
+  // Handle user deletion
   const handleDeleteUser = useCallback(async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token from localStorage
           },
         });
 
@@ -91,6 +100,7 @@ const UserList = () => {
     }
   }, []);
 
+  // Show loading message if data is still being fetched
   if (loading) {
     return <p className="text-center text-gray-600">Loading...</p>;
   }
@@ -109,24 +119,31 @@ const UserList = () => {
           <h2 className="text-2xl font-semibold mb-6 text-black">User List</h2>
           {error && <p className="text-red-500 mb-4">{error}</p>}
 
-          <table className="w-full table-auto border-collapse shadow-md rounded-lg overflow-hidden">
+          <table className="w-full table-auto border-collapse shadow-md rounded-lg overflow-hidden border border-gray-">
             <thead>
               <tr className="bg-orange-400 text-white">
                 <th className="border px-6 py-4 text-left">Name</th>
                 <th className="border px-6 py-4 text-left">Email</th>
                 <th className="border px-6 py-4 text-left">Role</th>
                 <th className="border px-6 py-4 text-left">Contact Number</th>
+                <th className="border px-6 py-4 text-left">City</th>
+                <th className="border px-6 py-4 text-left">Age</th>
                 <th className="border px-6 py-4 text-left">Action</th>
               </tr>
             </thead>
             <tbody>
               {users.length > 0 ? (
-                users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition duration-300">
+                users.map((user, index) => (
+                  <tr
+                    key={user.id}
+                    className={`hover:bg-yellow-500 transition duration-300 ${index !== 0 ? 'border-t-4 border-yellow-500' : ''}`}
+                  >
                     <td className="border px-6 py-4">{user.name}</td>
                     <td className="border px-6 py-4">{user.email}</td>
                     <td className="border px-6 py-4">{user.role}</td>
                     <td className="border px-6 py-4">{user.contact_number}</td>
+                    <td className="border px-6 py-4">{user.city}</td>
+                    <td className="border px-6 py-4">{user.age}</td>
                     <td className="border px-6 py-4">
                       <div className="flex gap-2">
                         {/* Role Change Dropdown */}
@@ -143,21 +160,13 @@ const UserList = () => {
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
                         </select>
-
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="bg-red-600 text-white p-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-200"
-                        >
-                          Delete
-                        </button>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center border px-6 py-4">
+                  <td colSpan="7" className="text-center border px-6 py-4">
                     No users found
                   </td>
                 </tr>
