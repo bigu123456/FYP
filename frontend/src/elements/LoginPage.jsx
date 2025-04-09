@@ -57,15 +57,14 @@ const LoginPage = () => {
 
       if (data.token) {
         console.log("Received Token:", data.token); // Log raw token
-        
 
         // Decode JWT token
         const decodedToken = jwtDecode(data.token);
         console.log("Decoded Token:", decodedToken); // Log decoded token
 
-        if (!decodedToken.role) {
-          console.error("User role is missing from the token!");
-          setError('User role is missing from the token');
+        if (!decodedToken.role || !decodedToken.userId) {
+          console.error("User data is missing from the token!");
+          setError('User data is missing from the token');
           return;
         }
 
@@ -73,13 +72,14 @@ const LoginPage = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userRole", decodedToken.role);
+        localStorage.setItem("userId", decodedToken.userId);  // Store userId
 
         console.log("Stored in localStorage:");
         console.log("token:", localStorage.getItem("token"));
         console.log("isAuthenticated:", localStorage.getItem("isAuthenticated"));
         console.log("userRole:", localStorage.getItem("userRole"));
+        console.log("userId:", localStorage.getItem("userId"));
 
-       
         if (decodedToken.role === 'admin') {
           navigate('/Admin'); // Admin page
         } else {
@@ -88,13 +88,13 @@ const LoginPage = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
           });
-        
+
           const res = await response.json(); // Assuming the response is JSON
-        
+
           if (res) {
             navigate('/otp-verification', { state: { email } });
           } else {
-            alert('failed');
+            alert('Failed');
           }
         }
       } else {
