@@ -1,5 +1,3 @@
-// index.js
-
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -9,6 +7,7 @@ const vehicleRoutes = require("./vehicleRoutes");
 const driverRoutes = require("./Routes/driverRoutes");
 const ordersRoutes = require("./Routes/orders");
 const authRoutes = require("./Routes/authRoutes");  // Import auth routes
+const userRoutes = require("./Routes/users"); // Import user routes
 
 const { verifyToken, isAdmin } = require("./middlewares/authMiddleware");
 
@@ -26,6 +25,7 @@ app.use("/api", vehicleRoutes);
 app.use("/api", driverRoutes);
 app.use("/api", ordersRoutes);
 app.use("/api/auth", authRoutes);  // Add the auth routes
+app.use("/api", userRoutes);  // Register the users route
 
 // Start the Server
 app.listen(PORT, () => {
