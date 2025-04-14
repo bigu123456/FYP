@@ -21,14 +21,20 @@ const Vehicles = () => {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to delete the vehicle");
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to delete the vehicle");
       }
 
       alert("Vehicle deleted successfully!");
       setVehicles(vehicles.filter((vehicle) => vehicle.id !== id));
     } catch (err) {
       console.error("Error:", err);
+      alert(err.message);
     }
+  };
+
+  const handleViewDetails = (vehicle) => {
+    navigate(`/details/${vehicle.id}`, { state: { vehicle } });
   };
 
   return (
@@ -63,12 +69,28 @@ const Vehicles = () => {
               <p><strong>Available:</strong> {vehicle.availability ? "✅" : "❌"}</p>
             </div>
 
+            <div className="mt-4">
+              <button
+                onClick={() => handleViewDetails(vehicle)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+              >
+                View Details
+              </button>
+            </div>
+
             <button
               onClick={() => handleDelete(vehicle.id)}
               className="mt-4 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition-all"
             >
               Delete
             </button>
+
+            {vehicle.description && (
+              <div className="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <p><strong>Description:</strong></p>
+                <p className="text-gray-700">{vehicle.description}</p>
+              </div>
+            )}
           </div>
         ))}
       </div>

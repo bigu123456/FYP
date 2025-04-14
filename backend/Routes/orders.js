@@ -69,15 +69,16 @@ router.get("/orders", async (req, res) => {
 
     // Use the correct column name "image_url" from vehicles and alias it as vehicle_image
     const result = await pool.query(`
-      SELECT o.*, v.image_url as vehicle_image
-      FROM orders o
-      JOIN vehicles v ON o.vehicle_id = v.id
+      SELECT orders.*, vehicles.image_url as vehicle_image
+      FROM orders
+      JOIN vehicles ON orders.vehicle_id = vehicles.id
     `);
+    
 
     // Map each order's image to a full URL.
     const orders = result.rows.map(order => ({
       ...order,
-      // If your stored image URL is relative (e.g. '/uploads/1742703596709.png'), prepend the backend base URL.
+      //  stored image URL is relative (e.g. '/uploads/1742703596709.png'), prepend the backend base URL.
       vehicle_image: order.vehicle_image ? `http://localhost:5000${order.vehicle_image}` : null
     }));
 

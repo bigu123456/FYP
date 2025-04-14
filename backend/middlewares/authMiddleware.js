@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 
 const verifyToken = (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -7,7 +9,7 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "your_jwt_secret_key");
+    const decoded = jwt.verify(token, "jwt_secret_key");
     req.user = decoded;
     next();
   } catch (error) {
@@ -23,3 +25,4 @@ const isAdmin = (req, res, next) => {
 };
 
 module.exports = { verifyToken, isAdmin };
+984186443

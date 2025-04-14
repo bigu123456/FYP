@@ -11,6 +11,7 @@ const AddVehicle = () => {
     fuel_type: "",
     rental_price: "",
     image: null,
+    description: "", // New description field
   });
 
   const [message, setMessage] = useState(""); // Success or error message
@@ -37,6 +38,7 @@ const AddVehicle = () => {
     data.append("type", formData.type);
     data.append("fuel_type", formData.fuel_type);
     data.append("rental_price", formData.rental_price);
+    data.append("description", formData.description); // Append description
     if (formData.image) {
       data.append("image", formData.image);
     }
@@ -51,7 +53,7 @@ const AddVehicle = () => {
       console.log("Response Data:", responseData);
 
       if (responseData.success) {
-        alert(" Vehicle added successfully!");
+        alert("Vehicle added successfully!");
 
         // Reset form fields after successful submission
         setFormData({
@@ -62,16 +64,17 @@ const AddVehicle = () => {
           fuel_type: "",
           rental_price: "",
           image: null,
+          description: "", // Reset description
         });
 
         // Clear message after 3 seconds
         setTimeout(() => setMessage(""), 3000);
       } else {
-        setMessage(" Failed to add vehicle. Please check your inputs!");
+        setMessage("Failed to add vehicle. Please check your inputs!");
       }
     } catch (err) {
-      console.error(" Error:", err);
-      setMessage(" Error adding vehicle. Please try again.");
+      console.error("Error:", err);
+      setMessage("Error adding vehicle. Please try again.");
     }
   };
 
@@ -155,6 +158,18 @@ const AddVehicle = () => {
               className="w-full p-2 border rounded"
               required
             />
+            
+            {/* Description Input */}
+            <textarea
+              name="description"
+              placeholder="Vehicle Description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              rows="4"
+              required
+            />
+
             {/* Image Upload */}
             <input
               type="file"
@@ -164,6 +179,7 @@ const AddVehicle = () => {
               accept="image/*"
               required
             />
+
             {/* Buttons */}
             <div className="flex justify-between mt-4">
               <button
@@ -173,14 +189,12 @@ const AddVehicle = () => {
                 Add Vehicle
               </button>
 
-              
-
               <button
                 type="button"
                 onClick={() => navigate(-1)} // Go back to previous page
                 className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
               >
-                back
+                Back
               </button>
             </div>
           </form>

@@ -1,3 +1,5 @@
+// server.js (Main server file)
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -26,6 +28,11 @@ app.use("/api", driverRoutes);
 app.use("/api", ordersRoutes);
 app.use("/api/auth", authRoutes);  // Add the auth routes
 app.use("/api", userRoutes);  // Register the users route
+
+// Admin-only route example
+app.use("/api/admin", verifyToken, isAdmin, (req, res) => {
+  res.send("Welcome Admin!");
+});
 
 // Start the Server
 app.listen(PORT, () => {

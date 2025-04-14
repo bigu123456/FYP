@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer"; // Import Footer component
+import Footer from "../components/Footer";
 
-const Bookingpage = () => {
+const BookingPage = () => {
   const [orders, setOrders] = useState([]); // State to store fetched orders
+  const [error, setError] = useState(null); // Error state
   const navigate = useNavigate();
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState(null); // Store the user ID from localStorage
 
   // Fetch logged-in user ID from local storage
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
-      setUserId(parseInt(storedUserId, 10));
+      setUserId(parseInt(storedUserId, 10));  // Set userId from localStorage
     } else {
       // Redirect to login if the user is not logged in
       navigate("/login");
@@ -30,7 +31,10 @@ const Bookingpage = () => {
           console.log("User Orders fetched:", userOrders);
           setOrders(userOrders);
         })
-        .catch((err) => console.error("Error fetching orders:", err));
+        .catch((err) => {
+          setError("Error fetching orders.");
+          console.error("Error fetching orders:", err);
+        });
     }
   }, [userId]);
 
@@ -42,6 +46,7 @@ const Bookingpage = () => {
           Your Orders
         </h2>
         <div className="max-w-6xl mx-auto">
+          {error && <p className="text-red-500 text-center">{error}</p>}
           {orders.length === 0 ? (
             <p className="text-center text-gray-600">No orders found.</p>
           ) : (
@@ -53,14 +58,12 @@ const Bookingpage = () => {
                       src={order.vehicle_image}
                       alt="Vehicle"
                       className="w-full h-40 object-cover rounded-md mb-3"
-                      style={{ marginLeft: '0', marginRight: '0' }} // Remove extra space
                     />
                   ) : (
                     <img
                       src="/path/to/default/image.jpg"
                       alt="Default Vehicle"
                       className="w-full h-40 object-cover rounded-md mb-3"
-                      style={{ marginLeft: '0', marginRight: '0' }} // Remove extra space
                     />
                   )}
                   <h3 className="text-xl font-semibold mb-2 text-gray-800">
@@ -68,6 +71,7 @@ const Bookingpage = () => {
                   </h3>
                   <p><strong>User ID:</strong> {order.user_id}</p>
                   <p><strong>Vehicle ID:</strong> {order.vehicle_id}</p>
+                  <p><strong>Driver ID:</strong> {order.driver_id ? order.driver_id : "Not assigned"}</p> {/* Display Driver ID */}
                   <p><strong>Rental Price:</strong> ${order.rental_price}</p>
                   <p><strong>Pickup Location:</strong> {order.pickup_location}</p>
                   <p><strong>Drop-off Location:</strong> {order.dropoff_location}</p>
@@ -83,10 +87,6 @@ const Bookingpage = () => {
                     <strong>Status:</strong>{" "}
                     <span className="text-blue-600">{order.status}</span>
                   </p>
-                  {/* Replacing View Details button with Success Message */}
-                  <p className="mt-4 text-green-600 font-semibold text-center">
-                    Order Successfully Placed!
-                  </p>
                 </div>
               ))}
             </div>
@@ -98,4 +98,4 @@ const Bookingpage = () => {
   );
 };
 
-export default Bookingpage;
+export default BookingPage;

@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-/* ======================== ADD DRIVER ======================== */
+/* ADD DRIVER*/
 router.post("/drivers", upload.single("image"), async (req, res) => {
   const { name, phone, license_number } = req.body;
 
@@ -46,7 +46,7 @@ router.post("/drivers", upload.single("image"), async (req, res) => {
 });
 
 
-/* ======================== DELETE DRIVER ======================== */
+/*DELETE DRIVER */
 router.delete("/drivers/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -102,7 +102,7 @@ router.put("/drivers/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-/* ======================== GET ALL DRIVERS ======================== */
+/*GET ALL DRIVERS */
 router.get("/drivers", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM drivers");

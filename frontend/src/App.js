@@ -11,6 +11,7 @@ import Booking from "./Adminpage/Booking";
 
 import OTPVerification from './elements/OTPVerification'; // OTPVerification Component
 import Bookingpage from "./elements/Bookingpage";
+import SingleVehicle from "./elements/SingleVehicle";
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -21,6 +22,8 @@ import Driverlist from "./Adminpage/Driverlist";
 import Editdriver from "./Adminpage/Editdriver";
 import UserList from "./Adminpage/UserList";  
 import AdminLayout from "./layouts/AdminLayout";
+import VehicleDetailsPage from "./Adminpage/VehicleDetailsPage";
+
 
 import PrivateRoute from './PrivateRoute';  
 const App = () => {
@@ -36,9 +39,13 @@ const App = () => {
         <Route path ="/Aboutus" element={<AboutUs/>}/>
         <Route path="/order/:id" element={<OrderPage />} />
         <Route path="/select-driver/:id" element={<SelectDriverPage />} />
+        
+        
        
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path ="Bookingpage" element={<Bookingpage/>}/>
+        <Route path="/details/:id" element={<SingleVehicle />} />
+
         
 
         {/* Admin Routes (Protected with PrivateRoute) */}
@@ -52,7 +59,8 @@ const App = () => {
           <Route path="/admin/Editdriver/:id" element={<Editdriver />} />
           <Route path="/user-list" element={<UserList />} />
           <Route path="Booking" element={<Booking/>}/>
-          
+          <Route path="/vehicle-details/:id" element={<VehicleDetailsPage />} />
+
         </Route>
       </Routes>
     </Router>
