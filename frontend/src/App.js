@@ -12,6 +12,7 @@ import Booking from "./Adminpage/Booking";
 import OTPVerification from './elements/OTPVerification'; // OTPVerification Component
 import Bookingpage from "./elements/Bookingpage";
 import SingleVehicle from "./elements/SingleVehicle";
+import DriverDetailsPage from "./elements/DriverDetailsPage";
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -45,6 +46,8 @@ const App = () => {
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path ="Bookingpage" element={<Bookingpage/>}/>
         <Route path="/details/:id" element={<SingleVehicle />} />
+        <Route path="/driver-details/:id" element={<DriverDetailsPage />} />
+
 
         
 

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db/Connection");
 
-// POST endpoint to create an order
+// POST endpoint to create an order with full vehicle and driver info
 router.post("/orders", async (req, res) => {
   try {
     const { 
@@ -16,51 +16,75 @@ router.post("/orders", async (req, res) => {
       dropoff_time 
     } = req.body;
 
-    console.log("Received order request:", req.body);
-
-    //  Validate required fields
+    // Validate input
     if (!vehicle_id || !user_id || !rental_price || !pickup_location || !dropoff_location || !pickup_time || !dropoff_time) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    //  Check if the user exists
+    // Check user
     const userCheck = await pool.query("SELECT id FROM users WHERE id = $1", [user_id]);
     if (userCheck.rows.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    //  Check if the vehicle exists
-    const vehicleCheck = await pool.query("SELECT id, image_url FROM vehicles WHERE id = $1", [vehicle_id]);
-    if (vehicleCheck.rows.length === 0) {
+    // Get vehicle details
+    const vehicleQuery = await pool.query("SELECT * FROM vehicles WHERE id = $1", [vehicle_id]);
+    if (vehicleQuery.rows.length === 0) {
       return res.status(404).json({ success: false, message: "Vehicle not found" });
     }
+    const vehicle = vehicleQuery.rows[0];
 
-    // Use the image_url from the vehicles table
-    const vehicleImage = vehicleCheck.rows[0].image_url;
+    // Get driver details (optional)
+    let driver = {};
+    if (driver_id) {
+      const driverQuery = await pool.query("SELECT * FROM drivers WHERE id = $1", [driver_id]);
+      if (driverQuery.rows.length === 0) {
+        return res.status(404).json({ success: false, message: "Driver not found" });
+      }
+      driver = driverQuery.rows[0];
+    }
 
-    //  Insert order into the orders table (store the vehicle image URL)
-    const result = await pool.query(
-      "INSERT INTO orders (vehicle_id, user_id, driver_id, rental_price, pickup_location, dropoff_location, pickup_time, dropoff_time, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
-      [
-        vehicle_id, 
-        user_id, 
-        driver_id || null, 
-        rental_price, 
-        pickup_location, 
-        dropoff_location, 
-        pickup_time, 
-        dropoff_time,
-        vehicleImage
-      ]
-    );
+    // Insert order with full details
+    const result = await pool.query(`
+      INSERT INTO orders (
+        vehicle_id, user_id, driver_id, rental_price,
+        pickup_location, dropoff_location, pickup_time, dropoff_time, image,
+        vehicle_brand, vehicle_model, vehicle_category, vehicle_fuel_type, vehicle_image,
+        driver_name, driver_phone, driver_license, driver_image
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,
+              $10,$11,$12,$13,$14,
+              $15,$16,$17,$18)
+      RETURNING *;
+    `, [
+      vehicle_id,
+      user_id,
+      driver_id || null,
+      rental_price,
+      pickup_location,
+      dropoff_location,
+      pickup_time,
+      dropoff_time,
+      vehicle.image_url, // existing image field
+      vehicle.brand,
+      vehicle.model,
+      vehicle.category,
+      vehicle.fuel_type,
+      vehicle.image_url,
+      driver.name || null,
+      driver.phone || null,
+      driver.license_number || null,
+      driver.image || null
+    ]);
 
-    console.log("Order created:", result.rows[0]);
     res.status(201).json({ success: true, order: result.rows[0] });
+
   } catch (error) {
-    console.error("Error saving order:", error.message, error.stack);
+    console.error("Error creating order:", error.message, error.stack);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 
 // GET all orders with vehicle images
 router.get("/orders", async (req, res) => {

@@ -41,57 +41,62 @@ const OrderPage = () => {
     }
   }, [location.state]);
 
-  const handleConfirmOrder = async () => {
+  const handleConfirmOrder = () => {
     if (!userId) {
       alert("User ID not found. Please log in first.");
       return;
     }
 
+    // Validate form input
     if (!pickupLocation || !dropoffLocation || !pickupTime || !dropoffTime) {
       alert("All fields must be filled in.");
       return;
     }
 
+    // Parse pickup and dropoff times as Date objects
     const pickupDate = new Date(pickupTime);
     const dropoffDate = new Date(dropoffTime);
-    const rentalDuration = Math.ceil((dropoffDate - pickupDate) / (1000 * 3600 * 24));
 
+    // Check if dropoff time is after pickup time
+    const rentalDuration = Math.ceil((dropoffDate - pickupDate) / (1000 * 3600 * 24));
     if (rentalDuration <= 0) {
       alert("Dropoff time must be after pickup time.");
       return;
     }
 
+    // Calculate rental cost
     const rentalCost = rentalDuration * vehicle.rental_price;
 
-    try {
-      const response = await fetch("http://localhost:5000/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vehicle_id: vehicle.id,
-          user_id: userId,
-          driver_id: selectedDriver ? selectedDriver.id : null,
-          rental_price: rentalCost,
-          pickup_location: pickupLocation,
-          dropoff_location: dropoffLocation,
-          pickup_time: pickupTime,
-          dropoff_time: dropoffTime,
-          image: vehicle.image_url,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${data.message || response.status}`);
-      }
-
-      alert("Order placed successfully!");
-      navigate("/Bookingpage");
-    } catch (error) {
-      console.error("Error placing order:", error);
-      alert("Failed to place order. Please try again.");
-    }
+    // Prepare the data to send to the new page
+    const orderData = {
+      // Core user & rental data
+      user_id: userId,
+      vehicle_id: vehicle.id,
+      driver_id: selectedDriver?.id || null,
+      rental_price: rentalCost,
+      pickup_location: pickupLocation,
+      dropoff_location: dropoffLocation,
+      pickup_time: pickupTime,
+      dropoff_time: dropoffTime,
+      rental_duration: rentalDuration,
+    
+      // Vehicle Details
+      vehicle_model: vehicle.model,
+      vehicle_brand: vehicle.brand,
+      vehicle_fuel_type: vehicle.fuel_type,
+      vehicle_image: vehicle.image_url,
+      vehicle_description: vehicle.description,
+    
+      // Driver Details
+      driver_name: selectedDriver?.name || null,
+      driver_phone: selectedDriver?.phone || null,
+      driver_license: selectedDriver?.license_number || null,
+      driver_description: selectedDriver?.description || null,
+      driver_image: selectedDriver?.image || null,
+    };
+    
+    // Navigate to the confirmation page and pass the data as state
+    navigate("/Bookingpage", { state: { orderData } });
   };
 
   return (
@@ -99,7 +104,7 @@ const OrderPage = () => {
       <Navbar />
       <div className="p-6 bg-gray-100 min-h-screen">
         {/* Main Info Section */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           
           {/* Driver Info */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -116,6 +121,7 @@ const OrderPage = () => {
                 <p><strong>Name:</strong> {selectedDriver.name}</p>
                 <p><strong>Phone:</strong> {selectedDriver.phone}</p>
                 <p><strong>License No:</strong> {selectedDriver.license_number}</p>
+                <p><strong>Description:</strong> {selectedDriver.description}</p>
               </div>
             ) : (
               <p className="text-gray-600">No driver selected.</p>
@@ -144,10 +150,17 @@ const OrderPage = () => {
                 <p><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
                 <p><strong>Rental Price:</strong> ${vehicle.rental_price} / day</p>
                 <p><strong>Availability:</strong> {vehicle.availability ? "✅ Available" : "❌ Not Available"}</p>
+                <p><strong>Description:</strong> {vehicle.description}</p>
               </div>
             ) : (
               <p className="text-red-600 font-semibold">Vehicle not found!</p>
             )}
+            <button
+              onClick={() => navigate(`/select-vehicle/${id}`, { state: { driver: selectedDriver } })}
+              className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+            >
+              {vehicle ? "Change Vehicle" : "Select Vehicle"}
+            </button>
           </div>
         </div>
 

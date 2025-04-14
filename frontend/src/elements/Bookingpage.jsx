@@ -1,99 +1,92 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const BookingPage = () => {
-  const [orders, setOrders] = useState([]); // State to store fetched orders
-  const [error, setError] = useState(null); // Error state
-  const navigate = useNavigate();
-  const [userId, setUserId] = useState(null); // Store the user ID from localStorage
+  const location = useLocation();
+  const { orderData } = location.state;
 
-  // Fetch logged-in user ID from local storage
-  useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(parseInt(storedUserId, 10));  // Set userId from localStorage
-    } else {
-      // Redirect to login if the user is not logged in
-      navigate("/login");
-    }
-  }, [navigate]);
+  const {
+    vehicle_model,
+    vehicle_brand,
+    vehicle_fuel_type,
+    vehicle_image,
+    vehicle_description,
 
-  // Fetch orders when the component mounts
-  useEffect(() => {
-    if (userId) {
-      fetch("http://localhost:5000/api/orders")
-        .then((res) => res.json())
-        .then((data) => {
-          // Filter orders to show only those that belong to the logged-in user
-          const userOrders = data.orders.filter(order => order.user_id === userId);
-          console.log("User Orders fetched:", userOrders);
-          setOrders(userOrders);
-        })
-        .catch((err) => {
-          setError("Error fetching orders.");
-          console.error("Error fetching orders:", err);
-        });
-    }
-  }, [userId]);
+    driver_name,
+    driver_phone,
+    driver_license,
+    driver_image,
+    driver_description,
+
+    pickup_location,
+    dropoff_location,
+    pickup_time,
+    dropoff_time,
+    rental_duration,
+    rental_price
+  } = orderData;
 
   return (
     <>
       <Navbar />
-      <div className="p-6 bg-gray-100">
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          Your Orders
-        </h2>
-        <div className="max-w-6xl mx-auto">
-          {error && <p className="text-red-500 text-center">{error}</p>}
-          {orders.length === 0 ? (
-            <p className="text-center text-gray-600">No orders found.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {orders.map((order) => (
-                <div key={order.id} className="bg-white p-4 rounded-lg shadow-md">
-                  {order.vehicle_image ? (
-                    <img
-                      src={order.vehicle_image}
-                      alt="Vehicle"
-                      className="w-full h-40 object-cover rounded-md mb-3"
-                    />
-                  ) : (
-                    <img
-                      src="/path/to/default/image.jpg"
-                      alt="Default Vehicle"
-                      className="w-full h-40 object-cover rounded-md mb-3"
-                    />
-                  )}
-                  <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                    Order ID: {order.id}
-                  </h3>
-                  <p><strong>User ID:</strong> {order.user_id}</p>
-                  <p><strong>Vehicle ID:</strong> {order.vehicle_id}</p>
-                  <p><strong>Driver ID:</strong> {order.driver_id ? order.driver_id : "Not assigned"}</p> {/* Display Driver ID */}
-                  <p><strong>Rental Price:</strong> ${order.rental_price}</p>
-                  <p><strong>Pickup Location:</strong> {order.pickup_location}</p>
-                  <p><strong>Drop-off Location:</strong> {order.dropoff_location}</p>
-                  <p>
-                    <strong>Pickup Time:</strong>{" "}
-                    {new Date(order.pickup_time).toLocaleString()}
-                  </p>
-                  <p>
-                    <strong>Drop-off Time:</strong>{" "}
-                    {new Date(order.dropoff_time).toLocaleString()}
-                  </p>
-                  <p>
-                    <strong>Status:</strong>{" "}
-                    <span className="text-blue-600">{order.status}</span>
-                  </p>
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <div className="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Booking Summary</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Vehicle Info */}
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-2">Vehicle Info</h3>
+              {vehicle_image ? (
+                <img
+                  src={`http://localhost:5000${vehicle_image}`}
+                  alt="Vehicle"
+                  className="w-full h-44 object-cover rounded-md mb-4"
+                />
+              ) : (
+                <div className="w-full h-44 bg-gray-200 flex items-center justify-center text-gray-500 rounded-md mb-4">
+                  No Image Available
                 </div>
-              ))}
+              )}
+              <p><strong>Model:</strong> {vehicle_model || "N/A"}</p>
+              <p><strong>Brand:</strong> {vehicle_brand || "N/A"}</p>
+              <p><strong>Fuel Type:</strong> {vehicle_fuel_type || "N/A"}</p>
+              <p><strong>Description:</strong> {vehicle_description || "N/A"}</p>
+              <p><strong>Rental Price:</strong> ${rental_price} total</p>
+              <p><strong>Duration:</strong> {rental_duration} day(s)</p>
             </div>
-          )}
+
+            {/* Driver Info */}
+            {driver_name && (
+              <div className="bg-white p-4 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold mb-2">Driver Info</h3>
+                {driver_image ? (
+                  <img
+                    src={`http://localhost:5000/uploads/${driver_image}`}
+                    alt={driver_name}
+                    className="w-full h-44 object-cover rounded-md mb-4"
+                  />
+                ) : null}
+                <p><strong>Name:</strong> {driver_name}</p>
+                <p><strong>Phone:</strong> {driver_phone}</p>
+                <p><strong>License:</strong> {driver_license}</p>
+                <p><strong>Description:</strong> {driver_description}</p>
+              </div>
+            )}
+
+            {/* Order Details */}
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-2">Order Details</h3>
+              <p><strong>Pickup Location:</strong> {pickup_location}</p>
+              <p><strong>Drop-off Location:</strong> {dropoff_location}</p>
+              <p><strong>Pickup Time:</strong> {new Date(pickup_time).toLocaleString()}</p>
+              <p><strong>Drop-off Time:</strong> {new Date(dropoff_time).toLocaleString()}</p>
+            </div>
+          </div>
         </div>
       </div>
-      <Footer /> {/* Use Footer component */}
+      <Footer />
     </>
   );
 };

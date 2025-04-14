@@ -4,11 +4,10 @@ import axios from "axios";
 
 const SelectDriverPage = () => {
   const [drivers, setDrivers] = useState([]);
-  const [successMessage, setSuccessMessage] = useState(null); // State to hold success message
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
-  const vehicle = location.state?.vehicle; // Get vehicle from location.state
+  const vehicle = location.state?.vehicle;
 
   useEffect(() => {
     const fetchDrivers = async () => {
@@ -22,7 +21,6 @@ const SelectDriverPage = () => {
     fetchDrivers();
   }, []);
 
-  // Ensure vehicle exists before proceeding
   if (!vehicle) {
     return (
       <div>
@@ -31,29 +29,10 @@ const SelectDriverPage = () => {
     );
   }
 
-  const selectDriver = async (driver) => {
-    try {
-      // Update driver availability in backend
-      const updatedDriver = { ...driver, availability: false };
-
-      await axios.put(`http://localhost:5000/api/drivers/${driver.id}`, updatedDriver);
-
-      // Update local state to reflect the driver's new availability status
-      setDrivers((prevDrivers) =>
-        prevDrivers.map((d) =>
-          d.id === driver.id ? { ...d, availability: false } : d
-        )
-      );
-
-      // Show success message
-      setSuccessMessage(`Driver ${driver.name} selected successfully!`);
-      setTimeout(() => setSuccessMessage(null), 3000);
-
-      // Navigate to the Order page with the selected driver
-      navigate(`/order/${id}`, { state: { vehicle, driver: updatedDriver } });
-    } catch (error) {
-      console.error("Error updating driver availability:", error);
-    }
+  const viewDriverDetails = (driver) => {
+    navigate(`/driver-details/${driver.id}`, {
+      state: { driver, vehicle },
+    });
   };
 
   return (
@@ -70,18 +49,14 @@ const SelectDriverPage = () => {
         Select a Driver
       </h1>
 
-      {/* Success Message */}
-      {successMessage && (
-        <div className="mb-4 p-4 bg-green-500 text-white text-center rounded-md">
-          {successMessage}
-        </div>
-      )}
-
+      {/* Drivers Grid */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {drivers.map((driver) => (
           <div
             key={driver.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transform transition-all duration-300 hover:shadow-xl hover:bg-orange-500 hover:text-white"
+            className={`bg-white rounded-lg shadow-md overflow-hidden flex flex-col transform transition-all duration-300 ${
+              driver.availability ? "hover:shadow-xl hover:bg-orange-500 hover:text-white" : "opacity-50"
+            }`}
           >
             {driver.image ? (
               <img
@@ -94,19 +69,25 @@ const SelectDriverPage = () => {
                 <span className="text-gray-500">No Image</span>
               </div>
             )}
+
             <div className="p-4 flex-1 flex flex-col">
               <h2 className="text-xl font-semibold mb-2">{driver.name}</h2>
               <p><span className="font-medium">Phone:</span> {driver.phone}</p>
               <p><span className="font-medium">License:</span> {driver.license_number}</p>
               <p><span className="font-medium">Availability:</span> {driver.availability ? "Available" : "Not Available"}</p>
+             
 
-              {/* Select Driver Button */}
+              {/* See Details Button */}
               <button
-                onClick={() => selectDriver(driver)}
-                className="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 transition-all"
+                onClick={() => viewDriverDetails(driver)}
+                className={`mt-4 w-full px-4 py-2 rounded-md text-white transition-all ${
+                  driver.availability
+                    ? "bg-blue-500 hover:bg-blue-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
                 disabled={!driver.availability} // Disable button if driver is not available
               >
-                Select Driver
+                See Details
               </button>
             </div>
           </div>

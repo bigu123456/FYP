@@ -2,30 +2,34 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import heroImage from "../images/Hero-page.png";
 import axios from "axios";
-import { validateEditDriver } from "./validation";  // Import validation function
+import { validateEditDriver } from "./validation"; // Import validation function
 
 const EditDriver = () => {
   // Get the driver ID from the URL using useParams
   const { id } = useParams();
-  const navigate = useNavigate();  // Hook to navigate programmatically
+  const navigate = useNavigate(); // Hook to navigate programmatically
+  
   // State to store the driver data and handle form submission
   const [driver, setDriver] = useState({
     name: "",
     phone: "",
     license_number: "",
     availability: false, // Added availability field to track if the driver is available
+    initialAvailability: false, // Store initial availability value
+    description: "", // Added description field
     image: null,
     currentImage: "", // To store the current image URL from the server (for updating)
   });
-  
+
   // State for managing file input for image
   const [image, setImage] = useState(null);
-  
+
   // State to handle error messages for the form validation
   const [errorMessages, setErrorMessages] = useState({
     name: "",
     phone: "",
     license_number: "",
+    description: "", // Error handling for description
     image: "",
   });
 
@@ -38,6 +42,7 @@ const EditDriver = () => {
         // Set the state with the fetched data, including the current image
         setDriver({
           ...res.data.driver,
+          initialAvailability: res.data.driver.availability, // Store initial availability
           currentImage: res.data.driver.image || "",
         });
       } catch (error) {
@@ -60,7 +65,7 @@ const EditDriver = () => {
   // Handle file change (for uploading a new driver image)
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);  // Set the image state to the selected file
+      setImage(e.target.files[0]); // Set the image state to the selected file
     }
   };
 
@@ -69,7 +74,7 @@ const EditDriver = () => {
     e.preventDefault(); // Prevent default form submission
 
     // Validate the driver data and the image (if provided)
-    const { isValid, errors } = validateEditDriver(driver, image, driver.currentImage);
+    const { isValid, errors } = validateEditDriver(driver, image, driver.currentImage, driver.availability !== driver.initialAvailability);
     setErrorMessages(errors); // Set error messages in the state
 
     if (!isValid) {
@@ -79,10 +84,12 @@ const EditDriver = () => {
     try {
       const formData = new FormData(); // Create a new FormData object for sending data
       // Append form fields to the FormData object
-      formData.append("name", driver.name);
+      formData.append("availability", driver.availability); // Include availability
+      formData.append("name", driver.name); // Include other fields, even if they are not changed
       formData.append("phone", driver.phone);
       formData.append("license_number", driver.license_number);
-      formData.append("availability", driver.availability); // Include availability
+      formData.append("description", driver.description);
+
       if (image) {
         formData.append("image", image); // If a new image is selected, append it
       } else {
@@ -161,6 +168,19 @@ const EditDriver = () => {
                   className="h-5 w-5 text-orange-600 focus:ring-orange-600"
                 />
                 <label className="ml-2 text-sm font-medium text-gray-700">Available for Rides</label>
+              </div>
+
+              {/* Description Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                  name="description"
+                  value={driver.description}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  rows="4"
+                />
+                {errorMessages.description && <p className="text-orange-600 text-sm">{errorMessages.description}</p>}
               </div>
 
               {/* Driver Image Field */}

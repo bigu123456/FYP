@@ -1,27 +1,27 @@
 const express = require("express");
-const pool = require("../db/Connection"); // Ensure this points to your database connection
+const pool = require("../db/Connection");
 const multer = require("multer");
 const path = require("path");
 
 const router = express.Router();
 
-// Configure multer storage
+// Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Ensure uploads folder exists
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-/* ADD DRIVER*/
+/* ----------------------- ADD DRIVER ----------------------- */
 router.post("/drivers", upload.single("image"), async (req, res) => {
-  const { name, phone, license_number } = req.body;
+  const { name, phone, license_number, description } = req.body;
 
-  if (!name || !phone || !license_number) {
+  if (!name || !phone || !license_number || !description) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -29,10 +29,10 @@ router.post("/drivers", upload.single("image"), async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO drivers (name, phone, license_number, availability, image)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO drivers (name, phone, license_number, availability, image, description)
+       VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING *`,
-      [name, phone, license_number, true, imageFilename] // Save image filename to DB
+      [name, phone, license_number, true, imageFilename, description]
     );
 
     res.status(201).json({
@@ -45,21 +45,17 @@ router.post("/drivers", upload.single("image"), async (req, res) => {
   }
 });
 
-
-/*DELETE DRIVER */
+/* ----------------------- DELETE DRIVER ----------------------- */
 router.delete("/drivers/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Check if the driver exists
     const existingDriver = await pool.query("SELECT * FROM drivers WHERE id = $1", [id]);
     if (existingDriver.rowCount === 0) {
       return res.status(404).json({ message: "Driver not found" });
     }
 
-    // Delete the driver from the database
     await pool.query("DELETE FROM drivers WHERE id = $1", [id]);
-
     res.status(200).json({ message: "Driver deleted successfully" });
   } catch (error) {
     console.error("Error deleting driver:", error);
@@ -67,32 +63,40 @@ router.delete("/drivers/:id", async (req, res) => {
   }
 });
 
-/* UPDATE DRIVER (Including Availability) */
+/* ----------------------- UPDATE DRIVER ----------------------- */
 router.put("/drivers/:id", upload.single("image"), async (req, res) => {
   const { id } = req.params;
-  const { name, phone, license_number, availability } = req.body; // Include availability
+  const { name, phone, license_number, availability, description } = req.body;
 
   try {
-    // Check if the driver exists
-    const existingDriver = await pool.query("SELECT * FROM drivers WHERE id = $1", [id]);
-    if (existingDriver.rowCount === 0) {
+    const existing = await pool.query("SELECT * FROM drivers WHERE id = $1", [id]);
+    if (existing.rowCount === 0) {
       return res.status(404).json({ message: "Driver not found" });
     }
 
-    // Get the existing image filename (if available)
-    let imageFilename = existingDriver.rows[0].image;
-    
-    // If a new image is uploaded, update the filename
-    if (req.file) {
-      imageFilename = req.file.filename;
-    }
+    const current = existing.rows[0];
 
-    // Update the driver details in the database, including availability
+    const updatedName = name || current.name;
+    const updatedPhone = phone || current.phone;
+    const updatedLicense = license_number || current.license_number;
+    const updatedAvailability =
+      typeof availability !== "undefined" ? availability : current.availability;
+    const updatedDescription = description || current.description;
+    const updatedImage = req.file ? req.file.filename : current.image;
+
     const result = await pool.query(
       `UPDATE drivers 
-       SET name = $1, phone = $2, license_number = $3, image = $4, availability = $5
-       WHERE id = $6 RETURNING *`,
-      [name, phone, license_number, imageFilename, availability, id]
+       SET name = $1, phone = $2, license_number = $3, image = $4, availability = $5, description = $6 
+       WHERE id = $7 RETURNING *`,
+      [
+        updatedName,
+        updatedPhone,
+        updatedLicense,
+        updatedImage,
+        updatedAvailability,
+        updatedDescription,
+        id,
+      ]
     );
 
     res.status(200).json({ message: "Driver updated successfully", driver: result.rows[0] });
@@ -102,7 +106,7 @@ router.put("/drivers/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-/*GET ALL DRIVERS */
+/* ----------------------- GET ALL DRIVERS ----------------------- */
 router.get("/drivers", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM drivers");
@@ -110,6 +114,22 @@ router.get("/drivers", async (req, res) => {
   } catch (error) {
     console.error("Error fetching drivers:", error);
     res.status(500).json({ message: "Failed to load drivers" });
+  }
+});
+
+/* ----------------------- GET SINGLE DRIVER ----------------------- */
+router.get("/drivers/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query("SELECT * FROM drivers WHERE id = $1", [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+
+    res.status(200).json({ driver: result.rows[0] });
+  } catch (error) {
+    console.error("Error fetching driver:", error);
+    res.status(500).json({ message: "Failed to fetch driver" });
   }
 });
 
