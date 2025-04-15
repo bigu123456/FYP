@@ -27,6 +27,9 @@ import VehicleDetailsPage from "./Adminpage/VehicleDetailsPage";
 
 
 import PrivateRoute from './PrivateRoute';  
+import PaymentComponent from "./components/PaymentForm";
+import Success from "./components/Success";
+import Failure from "./components/Failure";
 const App = () => {
   return (
     <Router>
@@ -63,6 +66,10 @@ const App = () => {
           <Route path="/user-list" element={<UserList />} />
           <Route path="Booking" element={<Booking/>}/>
           <Route path="/vehicle-details/:id" element={<VehicleDetailsPage />} />
+
+          <Route path="/payment" element={<PaymentComponent/>}/>
+          <Route path="/payment-success" element={<Success/>} />
+          <Route path="/payment-failure" element={<Failure/>} />
 
         </Route>
       </Routes>
