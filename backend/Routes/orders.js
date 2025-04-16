@@ -44,17 +44,17 @@ router.post("/orders", async (req, res) => {
       driver = driverQuery.rows[0];
     }
 
-    // Insert order with full details
+    // Insert order with full details — REMOVED the non-existent "image" column
     const result = await pool.query(`
       INSERT INTO orders (
         vehicle_id, user_id, driver_id, rental_price,
-        pickup_location, dropoff_location, pickup_time, dropoff_time, image,
+        pickup_location, dropoff_location, pickup_time, dropoff_time,
         vehicle_brand, vehicle_model, vehicle_category, vehicle_fuel_type, vehicle_image,
         driver_name, driver_phone, driver_license, driver_image
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,
-              $10,$11,$12,$13,$14,
-              $15,$16,$17,$18)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,
+              $9,$10,$11,$12,$13,
+              $14,$15,$16,$17)
       RETURNING *;
     `, [
       vehicle_id,
@@ -65,7 +65,6 @@ router.post("/orders", async (req, res) => {
       dropoff_location,
       pickup_time,
       dropoff_time,
-      vehicle.image_url, // existing image field
       vehicle.brand,
       vehicle.model,
       vehicle.category,
@@ -85,24 +84,19 @@ router.post("/orders", async (req, res) => {
   }
 });
 
-
 // GET all orders with vehicle images
 router.get("/orders", async (req, res) => {
   try {
     console.log("Fetching all orders with images...");
 
-    // Use the correct column name "image_url" from vehicles and alias it as vehicle_image
     const result = await pool.query(`
       SELECT orders.*, vehicles.image_url as vehicle_image
       FROM orders
       JOIN vehicles ON orders.vehicle_id = vehicles.id
     `);
-    
 
-    // Map each order's image to a full URL.
     const orders = result.rows.map(order => ({
       ...order,
-      //  stored image URL is relative (e.g. '/uploads/1742703596709.png'), prepend the backend base URL.
       vehicle_image: order.vehicle_image ? `http://localhost:5000${order.vehicle_image}` : null
     }));
 
@@ -111,6 +105,32 @@ router.get("/orders", async (req, res) => {
   } catch (error) {
     console.error("Error fetching orders:", error.message, error.stack);
     res.status(500).json({ success: false, message: "Failed to load orders" });
+  }
+});
+
+// GET orders for a specific user
+router.get("/orders/user/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT orders.*, 
+             vehicles.image_url AS vehicle_image,
+             drivers.name AS driver_name,
+             drivers.phone AS driver_phone,
+             drivers.license_number AS driver_license,
+             drivers.image AS driver_image
+      FROM orders
+      LEFT JOIN vehicles ON orders.vehicle_id = vehicles.id
+      LEFT JOIN drivers ON orders.driver_id = drivers.id
+      WHERE orders.user_id = $1
+      ORDER BY orders.pickup_time DESC
+    `, [userId]);
+
+    res.json({ success: true, orders: result.rows });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch order history" });
   }
 });
 

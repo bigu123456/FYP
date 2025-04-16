@@ -13,6 +13,8 @@ import OTPVerification from './elements/OTPVerification'; // OTPVerification Com
 import Bookingpage from "./elements/Bookingpage";
 import SingleVehicle from "./elements/SingleVehicle";
 import DriverDetailsPage from "./elements/DriverDetailsPage";
+import OrderHistory from "./elements/OrderHistory"; // or the correct path if different
+import UserProfile from "./elements/UserProfile";
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -50,6 +52,9 @@ const App = () => {
         <Route path ="Bookingpage" element={<Bookingpage/>}/>
         <Route path="/details/:id" element={<SingleVehicle />} />
         <Route path="/driver-details/:id" element={<DriverDetailsPage />} />
+        <Route path="/orderhistory" element={<OrderHistory />} />
+        <Route path="/userprofile" element={<UserProfile/>}/>
+
 
 
         

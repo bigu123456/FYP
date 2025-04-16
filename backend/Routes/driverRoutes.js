@@ -106,6 +106,35 @@ router.put("/drivers/:id", upload.single("image"), async (req, res) => {
   }
 });
 
+/* ----------------------- UPDATE DRIVER AVAILABILITY ONLY ----------------------- */
+router.put("/drivers/:id/availability", async (req, res) => {
+  const { id } = req.params;
+  const { availability } = req.body;
+
+  if (typeof availability !== "boolean") {
+    return res.status(400).json({ message: "Availability must be a boolean" });
+  }
+
+  try {
+    const result = await pool.query(
+      "UPDATE drivers SET availability = $1 WHERE id = $2 RETURNING *",
+      [availability, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+
+    res.status(200).json({
+      message: "Driver availability updated",
+      driver: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating availability:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 /* ----------------------- GET ALL DRIVERS ----------------------- */
 router.get("/drivers", async (req, res) => {
   try {

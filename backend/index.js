@@ -12,6 +12,9 @@ const authRoutes = require("./Routes/authRoutes");  // Import auth routes
 const userRoutes = require("./Routes/users"); // Import user routes
 
 const { verifyToken, isAdmin } = require("./middlewares/authMiddleware");
+const profileRoutes = require('./Routes/profile'); // or './Routes/user'
+
+
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -30,6 +33,7 @@ app.use("/api", driverRoutes);
 app.use("/api", ordersRoutes);
 app.use("/api/auth", authRoutes);  // Add the auth routes
 app.use("/api", userRoutes);  // Register the users route
+app.use('/api', profileRoutes);
 
 // Admin-only route example
 app.use("/api/admin", verifyToken, isAdmin, (req, res) => {
