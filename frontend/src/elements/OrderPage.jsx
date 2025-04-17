@@ -48,12 +48,12 @@ const OrderPage = () => {
       alert("User ID not found. Please log in first.");
       return;
     }
-
+  
     if (!pickupLocation || !dropoffLocation || !pickupTime || !dropoffTime) {
       alert("All fields must be filled in.");
       return;
     }
-
+  
     const pickupDate = new Date(pickupTime);
     const dropoffDate = new Date(dropoffTime);
     const rentalDuration = Math.ceil((dropoffDate - pickupDate) / (1000 * 3600 * 24));
@@ -61,9 +61,9 @@ const OrderPage = () => {
       alert("Dropoff time must be after pickup time.");
       return;
     }
-
+  
     const rentalCost = rentalDuration * vehicle.rental_price;
-
+  
     const orderData = {
       user_id: userId,
       vehicle_id: vehicle.id,
@@ -85,22 +85,24 @@ const OrderPage = () => {
       driver_description: selectedDriver?.description || null,
       driver_image: selectedDriver?.image || null,
     };
-
+  
     try {
       const response = await axios.post("http://localhost:5000/api/orders", orderData);
-
+  
       if (selectedDriver?.id) {
         await axios.put(`http://localhost:5000/api/drivers/${selectedDriver.id}/availability`, {
           availability: false,
         });
       }
-
-      navigate("/Bookingpage", { state: { orderData } });
+  
+      alert(" Order confirmed! Check your email for booking details.\nYou can also view your booking in the Order History page.");
+      navigate("/orderhistory");
     } catch (error) {
       console.error("Error during order confirmation:", error);
       alert("Something went wrong. Please try again.");
     }
   };
+  
 
   return (
     <>

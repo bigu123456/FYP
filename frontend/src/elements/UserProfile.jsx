@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // <-- Step 1
 
 const UserProfile = ({ onClose }) => {
   const [user, setUser] = useState({});
@@ -11,6 +12,7 @@ const UserProfile = ({ onClose }) => {
     contact_number: ''
   });
 
+  const navigate = useNavigate(); // <-- Step 2
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -39,25 +41,28 @@ const UserProfile = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       await axios.put(
         `http://localhost:5000/api/user/${userId}/update-profile`,
         formData
       );
       alert('Profile updated successfully!');
-      onClose(); // Close modal after update
+      onClose(); // Optional if you want to do anything else after update
     } catch (err) {
       console.error('Update failed:', err);
       alert('Update failed!');
     }
   };
 
+  const handleClose = () => {
+    navigate('/'); // <-- Redirect to home
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
         <button
-          onClick={onClose}
+          onClick={handleClose} // <-- Trigger redirect
           className="absolute top-2 right-2 text-gray-500 hover:text-black"
         >
           &times;
