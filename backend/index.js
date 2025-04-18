@@ -13,6 +13,8 @@ const userRoutes = require("./Routes/users"); // Import user routes
 
 const { verifyToken, isAdmin } = require("./middlewares/authMiddleware");
 const profileRoutes = require('./Routes/profile'); // or './Routes/user'
+const sheduler=require("./Routes/scheduler"); 
+
 
 
 

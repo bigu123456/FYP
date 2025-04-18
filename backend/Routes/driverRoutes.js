@@ -19,9 +19,9 @@ const upload = multer({ storage });
 
 /* ----------------------- ADD DRIVER ----------------------- */
 router.post("/drivers", upload.single("image"), async (req, res) => {
-  const { name, phone, license_number, description } = req.body;
+  const { name, phone, email, license_number, description } = req.body;
 
-  if (!name || !phone || !license_number || !description) {
+  if (!name || !phone || !email || !license_number || !description) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -29,10 +29,10 @@ router.post("/drivers", upload.single("image"), async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO drivers (name, phone, license_number, availability, image, description)
-       VALUES ($1, $2, $3, $4, $5, $6) 
+      `INSERT INTO drivers (name, phone, email, license_number, availability, image, description)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING *`,
-      [name, phone, license_number, true, imageFilename, description]
+      [name, phone, email, license_number, true, imageFilename, description]
     );
 
     res.status(201).json({
@@ -66,7 +66,7 @@ router.delete("/drivers/:id", async (req, res) => {
 /* ----------------------- UPDATE DRIVER ----------------------- */
 router.put("/drivers/:id", upload.single("image"), async (req, res) => {
   const { id } = req.params;
-  const { name, phone, license_number, availability, description } = req.body;
+  const { name, phone, email, license_number, availability, description } = req.body;
 
   try {
     const existing = await pool.query("SELECT * FROM drivers WHERE id = $1", [id]);
@@ -78,6 +78,7 @@ router.put("/drivers/:id", upload.single("image"), async (req, res) => {
 
     const updatedName = name || current.name;
     const updatedPhone = phone || current.phone;
+    const updatedEmail = email || current.email;
     const updatedLicense = license_number || current.license_number;
     const updatedAvailability =
       typeof availability !== "undefined" ? availability : current.availability;
@@ -86,11 +87,12 @@ router.put("/drivers/:id", upload.single("image"), async (req, res) => {
 
     const result = await pool.query(
       `UPDATE drivers 
-       SET name = $1, phone = $2, license_number = $3, image = $4, availability = $5, description = $6 
-       WHERE id = $7 RETURNING *`,
+       SET name = $1, phone = $2, email = $3, license_number = $4, image = $5, availability = $6, description = $7 
+       WHERE id = $8 RETURNING *`,
       [
         updatedName,
         updatedPhone,
+        updatedEmail,
         updatedLicense,
         updatedImage,
         updatedAvailability,

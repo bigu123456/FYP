@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../db/Connection");
 const { sendBookingConfirmation } = require("../controllers/otpController");
 
-// ✅ Create a new order
+// Create a new order with vehicle booking limit check
 router.post("/orders", async (req, res) => {
   try {
     const { 
@@ -21,21 +21,33 @@ router.post("/orders", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // Fetch user email
+    // 1. Check booking count for this vehicle
+    const bookingLimit = 10;
+    const bookingCountResult = await pool.query(
+      "SELECT COUNT(*) FROM orders WHERE vehicle_id = $1",
+      [vehicle_id]
+    );
+
+    const currentBookings = parseInt(bookingCountResult.rows[0].count, 10);
+    if (currentBookings >= bookingLimit) {
+      return res.status(400).json({ success: false, message: "This vehicle is fully booked (limit reached)." });
+    }
+
+    // 2. Fetch user email
     const userCheck = await pool.query("SELECT id, email FROM users WHERE id = $1", [user_id]);
     if (userCheck.rows.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
     const userEmail = userCheck.rows[0].email;
 
-    // Get vehicle data
+    // 3. Get vehicle data
     const vehicleQuery = await pool.query("SELECT * FROM vehicles WHERE id = $1", [vehicle_id]);
     if (vehicleQuery.rows.length === 0) {
       return res.status(404).json({ success: false, message: "Vehicle not found" });
     }
     const vehicle = vehicleQuery.rows[0];
 
-    // Get driver data if provided
+    // 4. Get driver data if provided
     let driver = {};
     if (driver_id) {
       const driverQuery = await pool.query("SELECT * FROM drivers WHERE id = $1", [driver_id]);
@@ -45,6 +57,7 @@ router.post("/orders", async (req, res) => {
       driver = driverQuery.rows[0];
     }
 
+    // 5. Insert order
     const result = await pool.query(`
       INSERT INTO orders (
         vehicle_id, user_id, driver_id, rental_price,
@@ -80,7 +93,7 @@ router.post("/orders", async (req, res) => {
 
     const createdOrder = result.rows[0];
 
-    // ✅ Send booking confirmation email
+    // 6. Send confirmation email
     if (userEmail) {
       await sendBookingConfirmation(userEmail, {
         vehicle_brand: vehicle.brand,

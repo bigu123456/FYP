@@ -114,4 +114,5 @@ const sendBookingConfirmation = async (to, orderDetails) => {
 };
 
 
+
 module.exports = { sendOTP, verifyOTP, sendBookingConfirmation };

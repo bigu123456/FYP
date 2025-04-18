@@ -4,6 +4,8 @@ import axios from "axios";
 
 const SelectDriverPage = () => {
   const [drivers, setDrivers] = useState([]);
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
@@ -22,11 +24,7 @@ const SelectDriverPage = () => {
   }, []);
 
   if (!vehicle) {
-    return (
-      <div>
-        <p>Error: Vehicle data not found. Please go back and select again.</p>
-      </div>
-    );
+    return <p>Error: Vehicle data not found. Please go back and select again.</p>;
   }
 
   const viewDriverDetails = (driver) => {
@@ -34,6 +32,10 @@ const SelectDriverPage = () => {
       state: { driver, vehicle },
     });
   };
+
+  const filteredDrivers = drivers.filter((driver) =>
+    onlyAvailable ? driver.availability : true
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -49,13 +51,28 @@ const SelectDriverPage = () => {
         Select a Driver
       </h1>
 
+      {/* Toggle Available */}
+      <div className="flex justify-end items-center mb-6">
+        <label className="flex items-center gap-2 text-gray-700">
+          <input
+            type="checkbox"
+            checked={onlyAvailable}
+            onChange={(e) => setOnlyAvailable(e.target.checked)}
+            className="w-4 h-4"
+          />
+          Show only available
+        </label>
+      </div>
+
       {/* Drivers Grid */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {drivers.map((driver) => (
+        {filteredDrivers.map((driver) => (
           <div
             key={driver.id}
             className={`bg-white rounded-lg shadow-md overflow-hidden flex flex-col transform transition-all duration-300 ${
-              driver.availability ? "hover:shadow-xl hover:bg-orange-500 hover:text-white" : "opacity-50"
+              driver.availability
+                ? "hover:shadow-xl hover:bg-orange-500 hover:text-white"
+                : "opacity-50"
             }`}
           >
             {driver.image ? (
@@ -74,10 +91,17 @@ const SelectDriverPage = () => {
               <h2 className="text-xl font-semibold mb-2">{driver.name}</h2>
               <p><span className="font-medium">Phone:</span> {driver.phone}</p>
               <p><span className="font-medium">License:</span> {driver.license_number}</p>
-              <p><span className="font-medium">Availability:</span> {driver.availability ? "Available" : "Not Available"}</p>
-             
+              <p>
+                <span className="font-medium">Email:</span>{" "}
+                <a href={`mailto:${driver.email}`} className="underline hover:text-blue-200">
+                  {driver.email}
+                </a>
+              </p>
+              <p>
+                <span className="font-medium">Availability:</span>{" "}
+                {driver.availability ? "Available" : "Not Available"}
+              </p>
 
-              {/* See Details Button */}
               <button
                 onClick={() => viewDriverDetails(driver)}
                 className={`mt-4 w-full px-4 py-2 rounded-md text-white transition-all ${
@@ -85,7 +109,7 @@ const SelectDriverPage = () => {
                     ? "bg-blue-500 hover:bg-blue-700"
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
-                disabled={!driver.availability} // Disable button if driver is not available
+                disabled={!driver.availability}
               >
                 See Details
               </button>

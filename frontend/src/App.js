@@ -47,6 +47,7 @@ const App = () => {
         <Route path="/select-driver/:id" element={<SelectDriverPage />} />
         
         
+        
        
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path ="Bookingpage" element={<Bookingpage/>}/>
@@ -54,7 +55,9 @@ const App = () => {
         <Route path="/driver-details/:id" element={<DriverDetailsPage />} />
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/userprofile" element={<UserProfile/>}/>
-
+        <Route path="/payment" element={<PaymentComponent/>}/>
+          <Route path="/payment-success" element={<Success/>} />
+          <Route path="/payment-failure" element={<Failure/>} />
 
 
         
@@ -72,9 +75,7 @@ const App = () => {
           <Route path="Booking" element={<Booking/>}/>
           <Route path="/vehicle-details/:id" element={<VehicleDetailsPage />} />
 
-          <Route path="/payment" element={<PaymentComponent/>}/>
-          <Route path="/payment-success" element={<Success/>} />
-          <Route path="/payment-failure" element={<Failure/>} />
+         
 
         </Route>
       </Routes>

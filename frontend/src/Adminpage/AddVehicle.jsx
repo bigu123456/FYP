@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import LoginImage from "../images/loginimage.png"; // Ensure correct path to image
 
 const AddVehicle = () => {
@@ -15,7 +15,7 @@ const AddVehicle = () => {
   });
 
   const [message, setMessage] = useState(""); // Success or error message
-  const navigate = useNavigate(); // Initialize navigate for Cancel button
+  
 
   // Handle input changes
   const handleChange = (e) => {
@@ -66,17 +66,17 @@ const AddVehicle = () => {
           image: null,
           description: "", // Reset description
         });
-
-        // Clear message after 3 seconds
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Failed to add vehicle. Please check your inputs!");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      setMessage("Error adding vehicle. Please try again.");
+         // Navigate to driver list (or any other page)
+      
+    } else {
+      setMessage("Failed to add vehicle. Please check your inputs!");
     }
-  };
+  } catch (err) {
+    console.error("Error:", err);
+    setMessage("Error adding vehicle. Please try again.");
+  }
+};
+
 
   return (
     <div className="flex min-h-screen">
@@ -189,13 +189,7 @@ const AddVehicle = () => {
                 Add Vehicle
               </button>
 
-              <button
-                type="button"
-                onClick={() => navigate(-1)} // Go back to previous page
-                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
-              >
-                Back
-              </button>
+             
             </div>
           </form>
         </div>

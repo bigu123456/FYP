@@ -88,13 +88,22 @@ const Vehicles = () => {
               </div>
 
               <div className="mt-4">
-                <button
-                  onClick={() => handleViewDetails(vehicle)}
-                  className="bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-orange-500 transition-all"
-
-                >
-                  Details
-                </button>
+                {vehicle.availability ? (
+                  <button
+                    onClick={() => handleViewDetails(vehicle)}
+                    className="bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-orange-500 transition-all"
+                  >
+                    Details
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg cursor-not-allowed opacity-70"
+                    title="This vehicle is fully booked"
+                  >
+                    Unavailable
+                  </button>
+                )}
               </div>
             </div>
           ))}
