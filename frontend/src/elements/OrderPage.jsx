@@ -20,6 +20,7 @@ const OrderPage = () => {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
+    console.log("User ID from localStorage:", storedUserId);
     if (storedUserId) {
       setUserId(parseInt(storedUserId, 10));
     } else {
@@ -32,13 +33,19 @@ const OrderPage = () => {
     if (!vehicle) {
       fetch(`http://localhost:5000/api/vehicles/${id}`)
         .then((res) => res.json())
-        .then((vehicleData) => setVehicle(vehicleData))
+        .then((vehicleData) => {
+          console.log("Fetched vehicle data:", vehicleData);
+          setVehicle(vehicleData);
+        })
         .catch((err) => console.error("Error fetching vehicle:", err));
+    } else {
+      console.log("Vehicle from state:", vehicle);
     }
   }, [id, vehicle]);
 
   useEffect(() => {
     if (location.state?.driver) {
+      console.log("Driver from state:", location.state.driver);
       setSelectedDriver(location.state.driver);
     }
   }, [location.state]);
@@ -48,12 +55,12 @@ const OrderPage = () => {
       alert("User ID not found. Please log in first.");
       return;
     }
-  
+
     if (!pickupLocation || !dropoffLocation || !pickupTime || !dropoffTime) {
       alert("All fields must be filled in.");
       return;
     }
-  
+
     const pickupDate = new Date(pickupTime);
     const dropoffDate = new Date(dropoffTime);
     const rentalDuration = Math.ceil((dropoffDate - pickupDate) / (1000 * 3600 * 24));
@@ -61,9 +68,9 @@ const OrderPage = () => {
       alert("Dropoff time must be after pickup time.");
       return;
     }
-  
+
     const rentalCost = rentalDuration * vehicle.rental_price;
-  
+
     const orderData = {
       user_id: userId,
       vehicle_id: vehicle.id,
@@ -85,36 +92,41 @@ const OrderPage = () => {
       driver_description: selectedDriver?.description || null,
       driver_image: selectedDriver?.image || null,
     };
-  
+
     try {
       const response = await axios.post("http://localhost:5000/api/orders", orderData);
-  
+      console.log("Order response:", response.data);
+
+
       if (selectedDriver?.id) {
         await axios.put(`http://localhost:5000/api/drivers/${selectedDriver.id}/availability`, {
           availability: false,
         });
       }
-  
-      alert(" Order confirmed! Check your email for booking details.\nYou can also view your booking in the Order History page.");
+
+      alert("Order confirmed! Check your email for booking details.\nYou can also view your booking in the Order History page.");
       navigate("/orderhistory");
     } catch (error) {
       console.error("Error during order confirmation:", error);
       alert("Something went wrong. Please try again.");
     }
   };
-  
 
   return (
     <>
       <Navbar />
-  
-      {/* Outer Wrapper with Background */}
+
       <div
         className="min-h-screen bg-cover bg-center px-4 py-10"
         style={{ backgroundImage: `url(${CarImage})` }}
       >
-        {/* Inner Container with Transparency & Columns */}
         <div className="max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+          {/* Display User ID at the top */}
+          <div className="col-span-3 mb-6 text-center text-lg font-semibold text-white bg-black bg-opacity-40 p-2 rounded">
+            User ID: {userId ? userId : "Loading..."}
+          </div>
+
           {/* Vehicle Info */}
           <div className="bg-white bg-opacity-90 rounded-xl p-6 shadow-md">
             <h3 className="text-xl font-bold text-gray-800 mb-3">Vehicle Info</h3>
@@ -125,6 +137,7 @@ const OrderPage = () => {
                   alt={vehicle.model}
                   className="w-full h-40 object-cover rounded-md mb-4"
                 />
+                <p><strong>Vehicle ID:</strong> {vehicle.id}</p>
                 <p><strong>Brand:</strong> {vehicle.brand}</p>
                 <p><strong>Model:</strong> {vehicle.model}</p>
                 <p><strong>Category:</strong> {vehicle.category}</p>
@@ -143,7 +156,7 @@ const OrderPage = () => {
               <p className="text-red-500">Vehicle not found.</p>
             )}
           </div>
-  
+
           {/* Driver Info */}
           <div className="bg-white bg-opacity-90 rounded-xl p-6 shadow-md">
             <h3 className="text-xl font-bold text-gray-800 mb-3">Driver Info</h3>
@@ -156,6 +169,7 @@ const OrderPage = () => {
                     className="w-full h-40 object-cover rounded-md mb-4"
                   />
                 )}
+                <p><strong>Driver ID:</strong> {selectedDriver.id}</p>
                 <p><strong>Name:</strong> {selectedDriver.name}</p>
                 <p><strong>Phone:</strong> {selectedDriver.phone}</p>
                 <p><strong>License No:</strong> {selectedDriver.license_number}</p>
@@ -171,7 +185,7 @@ const OrderPage = () => {
               {selectedDriver ? "Change Driver" : "Select Driver (Optional)"}
             </button>
           </div>
-  
+
           {/* Rental Details Form */}
           <div className="bg-white bg-opacity-90 rounded-xl p-6 shadow-md">
             <h3 className="text-xl font-bold text-gray-800 mb-3">Rental Details</h3>
@@ -212,10 +226,10 @@ const OrderPage = () => {
           </div>
         </div>
       </div>
-  
+
       <Footer />
     </>
   );
-}  
+};
 
 export default OrderPage;
