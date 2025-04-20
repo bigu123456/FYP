@@ -15,6 +15,7 @@ import SingleVehicle from "./elements/SingleVehicle";
 import DriverDetailsPage from "./elements/DriverDetailsPage";
 import OrderHistory from "./elements/OrderHistory"; // or the correct path if different
 import UserProfile from "./elements/UserProfile";
+import LoyaltyDashboard from "./elements/LoyaltyDashboard";
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -58,6 +59,7 @@ const App = () => {
         <Route path="/payment" element={<PaymentComponent/>}/>
           <Route path="/payment-success" element={<Success/>} />
           <Route path="/payment-failure" element={<Failure/>} />
+          <Route path ="/LoyaltyDashboard"element={<LoyaltyDashboard/>} />
 
 
         

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // <-- Step 1
+import { useNavigate } from 'react-router-dom';
+import LoyaltyInfo from './LoyaltyInfo'; // 👈 Importing the loyalty component
 
 const UserProfile = ({ onClose }) => {
   const [user, setUser] = useState({});
@@ -12,7 +13,7 @@ const UserProfile = ({ onClose }) => {
     contact_number: ''
   });
 
-  const navigate = useNavigate(); // <-- Step 2
+  const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const UserProfile = ({ onClose }) => {
         formData
       );
       alert('Profile updated successfully!');
-      onClose(); // Optional if you want to do anything else after update
+      onClose(); // optional
     } catch (err) {
       console.error('Update failed:', err);
       alert('Update failed!');
@@ -55,19 +56,19 @@ const UserProfile = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    navigate('/'); // <-- Redirect to home
+    navigate('/');
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center overflow-auto">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
         <button
-          onClick={handleClose} // <-- Trigger redirect
-          className="absolute top-2 right-2 text-gray-500 hover:text-black"
+          onClick={handleClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
         >
           &times;
         </button>
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-center">
           {user.role === 'admin' ? 'Admin Profile' : 'User Profile'}
         </h2>
 
@@ -78,7 +79,7 @@ const UserProfile = ({ onClose }) => {
             value={formData.name}
             placeholder="Name"
             onChange={handleChange}
-            className="mb-2 block w-full border px-3 py-2"
+            className="mb-2 block w-full border px-3 py-2 rounded"
           />
           <input
             type="email"
@@ -86,7 +87,7 @@ const UserProfile = ({ onClose }) => {
             value={formData.email}
             placeholder="Email"
             onChange={handleChange}
-            className="mb-2 block w-full border px-3 py-2"
+            className="mb-2 block w-full border px-3 py-2 rounded"
           />
           <input
             type="text"
@@ -94,7 +95,7 @@ const UserProfile = ({ onClose }) => {
             value={formData.age}
             placeholder="Age"
             onChange={handleChange}
-            className="mb-2 block w-full border px-3 py-2"
+            className="mb-2 block w-full border px-3 py-2 rounded"
           />
           <input
             type="text"
@@ -102,7 +103,7 @@ const UserProfile = ({ onClose }) => {
             value={formData.city}
             placeholder="City"
             onChange={handleChange}
-            className="mb-2 block w-full border px-3 py-2"
+            className="mb-2 block w-full border px-3 py-2 rounded"
           />
           <input
             type="text"
@@ -110,15 +111,18 @@ const UserProfile = ({ onClose }) => {
             value={formData.contact_number}
             placeholder="Contact Number"
             onChange={handleChange}
-            className="mb-4 block w-full border px-3 py-2"
+            className="mb-4 block w-full border px-3 py-2 rounded"
           />
           <button
             type="submit"
-            className="bg-orange-500 text-white px-4 py-2 rounded"
+            className="bg-orange-500 text-white px-4 py-2 rounded w-full"
           >
             Update Profile
           </button>
         </form>
+
+        {/* 👇 Loyalty Info Section */}
+        <LoyaltyInfo userId={userId} />
       </div>
     </div>
   );

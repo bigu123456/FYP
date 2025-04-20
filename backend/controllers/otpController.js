@@ -27,7 +27,8 @@ const sendOTP = async (req, res) => {
   const { email } = req.body;
   try {
     const otp = generateOTP();
-    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+
     Store[email] = { otp, expiresAt };
     await sendOTPEmail(email, otp);
     res.status(200).json({ message: 'OTP sent successfully', success: true });
