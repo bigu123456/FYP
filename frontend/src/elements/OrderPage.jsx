@@ -28,8 +28,11 @@ const OrderPage = () => {
     }
   }, [navigate]);
 
+  // Always respect latest vehicle from location or fallback to fetch
   useEffect(() => {
-    if (!vehicle) {
+    if (location.state?.vehicle) {
+      setVehicle(location.state.vehicle);
+    } else {
       fetch(`http://localhost:5000/api/vehicles/${id}`)
         .then((res) => res.json())
         .then((vehicleData) => {
@@ -37,13 +40,14 @@ const OrderPage = () => {
         })
         .catch((err) => console.error("Error fetching vehicle:", err));
     }
-  }, [id, vehicle]);
+  }, [id, location.state?.vehicle]);
 
+  // Preserve or update driver only if explicitly passed
   useEffect(() => {
-    if (location.state?.driver) {
+    if (location.state?.driver !== undefined) {
       setSelectedDriver(location.state.driver);
     }
-  }, [location.state]);
+  }, [location.state?.driver]);
 
   const handleConfirmOrder = async () => {
     if (!userId) {
@@ -151,8 +155,8 @@ const OrderPage = () => {
                 <p><strong>Availability:</strong> {vehicle.availability ? "✅ Available" : "❌ Not Available"}</p>
                 <p><strong>Description:</strong> {vehicle.description}</p>
                 <button
-                  onClick={() => navigate(`/select-vehicle/${id}`, { state: { driver: selectedDriver } })}
-                  className="mt-3 w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600"
+                  onClick={() => navigate("/vehicleslists", { state: { driver: selectedDriver } })}
+                  className="mt-3 w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition duration-300"
                 >
                   {vehicle ? "Change Vehicle" : "Select Vehicle"}
                 </button>
@@ -230,7 +234,6 @@ const OrderPage = () => {
                 Confirm Order
               </button>
 
-              {/* Total Cost Preview */}
               {pickupTime && dropoffTime && vehicle && (
                 <div className="text-lg font-semibold text-gray-700 mt-3">
                   Total Rental Cost: ₹{calculateRentalCost()}

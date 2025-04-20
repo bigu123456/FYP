@@ -62,7 +62,7 @@ const OrderHistory = () => {
                     <p><strong>Category:</strong> {order.vehicle_category}</p>
                     <p><strong>Fuel Type:</strong> {order.vehicle_fuel_type}</p>
                     <p><strong>Price:</strong> ₹{order.rental_price}</p>
-                    <p><strong>Description:</strong> {order.vehicle_description}</p>
+                   
                   </div>
 
                   {/* Driver Info */}
@@ -79,7 +79,7 @@ const OrderHistory = () => {
                       <p><strong>Name:</strong> {order.driver_name}</p>
                       <p><strong>Phone:</strong> {order.driver_phone}</p>
                       <p><strong>License:</strong> {order.driver_license}</p>
-                      <p><strong>Description:</strong> {order.driver_description}</p>
+                      
                     </div>
                   )}
 

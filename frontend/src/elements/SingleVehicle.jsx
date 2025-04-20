@@ -11,6 +11,10 @@ const VehicleDetails = () => {
     navigate(`/order/${vehicle.id}`, { state: { vehicle } });
   };
 
+  const handleCancel = () => {
+    navigate(-1); // Go back to the previous page
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -18,7 +22,7 @@ const VehicleDetails = () => {
       <div className="flex-1 p-8">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-orange-500">
-             You are in <span className="text-black">Vehicle Details</span> Page
+            You are in <span className="text-black">Vehicle Details</span> Page
           </h1>
         </div>
 
@@ -51,12 +55,20 @@ const VehicleDetails = () => {
               </div>
             )}
 
-            <button
-              onClick={handleBooking}
-              className="mt-6 w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition-all"
-            >
-              🚀 Book Now
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <button
+                onClick={handleBooking}
+                className="w-full sm:w-auto px-6 py-2 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-all"
+              >
+                🚀 Book Now
+              </button>
+              <button
+                onClick={handleCancel}
+                className="w-full sm:w-auto px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-all"
+              >
+                ❌ Cancel
+              </button>
+            </div>
           </div>
         </div>
       </div>
