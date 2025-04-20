@@ -32,13 +32,8 @@ const DriverList = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value.toLowerCase());
-  };
-
-  const handleSort = (e) => {
-    setSortBy(e.target.value);
-  };
+  const handleSearch = (e) => setSearchTerm(e.target.value.toLowerCase());
+  const handleSort = (e) => setSortBy(e.target.value);
 
   const filteredDrivers = drivers
     .filter((driver) =>
@@ -65,50 +60,47 @@ const DriverList = () => {
         ← Back
       </button>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">Driver List</h1>
 
-        {/* Compact Search Box */}
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-40 sm:w-48 pl-4 pr-10 py-2 bg-gray-800 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 placeholder:text-gray-300"
-          />
-          <button className="absolute top-1 right-1 w-8 h-8 rounded-full bg-white flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-gray-800"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
-              />
-            </svg>
-          </button>
+        <div className="flex gap-4 items-center">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-40 sm:w-48 pl-4 pr-10 py-2 bg-gray-800 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 placeholder:text-gray-300"
+            />
+            <button className="absolute top-1 right-1 w-8 h-8 rounded-full bg-white flex items-center justify-center">
+              <svg
+                className="w-4 h-4 text-gray-800"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <select
+            value={sortBy}
+            onChange={handleSort}
+            className="px-4 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="">Sort By</option>
+            <option value="availability">Availability</option>
+            <option value="name">Name</option>
+          </select>
         </div>
       </div>
 
-      {/* Sort Dropdown */}
-      <div className="flex justify-end mb-6">
-        <select
-          value={sortBy}
-          onChange={handleSort}
-          className="px-4 py-2 border border-gray-300 rounded-md"
-        >
-          <option value="">Sort By</option>
-          <option value="availability">Availability</option>
-          <option value="name">Name</option>
-        </select>
-      </div>
-
-      {/* Driver Cards */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredDrivers.map((driver) => (
           <div
@@ -129,14 +121,20 @@ const DriverList = () => {
 
             <div className="p-4 flex-1 flex flex-col">
               <h2 className="text-xl font-semibold mb-2">{driver.name}</h2>
+             
               <p><span className="font-medium">Phone:</span> {driver.phone}</p>
-              <p><span className="font-medium">License:</span> {driver.license_number}</p>
-              <p>
-                <span className="font-medium">Email:</span>{" "}
-                <a href={`mailto:${driver.email}`} className="underline hover:text-blue-300">
-                  {driver.email}
-                </a>
-              </p>
+<p><span className="font-medium">License:</span> {driver.license_number}</p>
+<p className="text-lg font-semibold text-orange-600 mt-1">
+  ₹{driver.price_per_day || "N/A"} /day
+</p>
+<p>
+  <span className="font-medium">Email:</span>{" "}
+  <a href={`mailto:${driver.email}`} className="underline hover:text-blue-300">
+    {driver.email}
+  </a>
+</p>
+
+              
               <p>
                 <span className="font-medium">Availability:</span>{" "}
                 <span className={driver.availability ? "text-green-600" : "text-red-600"}>

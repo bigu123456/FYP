@@ -20,7 +20,6 @@ const OrderPage = () => {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
-    console.log("User ID from localStorage:", storedUserId);
     if (storedUserId) {
       setUserId(parseInt(storedUserId, 10));
     } else {
@@ -34,18 +33,14 @@ const OrderPage = () => {
       fetch(`http://localhost:5000/api/vehicles/${id}`)
         .then((res) => res.json())
         .then((vehicleData) => {
-          console.log("Fetched vehicle data:", vehicleData);
           setVehicle(vehicleData);
         })
         .catch((err) => console.error("Error fetching vehicle:", err));
-    } else {
-      console.log("Vehicle from state:", vehicle);
     }
   }, [id, vehicle]);
 
   useEffect(() => {
     if (location.state?.driver) {
-      console.log("Driver from state:", location.state.driver);
       setSelectedDriver(location.state.driver);
     }
   }, [location.state]);
@@ -69,7 +64,9 @@ const OrderPage = () => {
       return;
     }
 
-    const rentalCost = rentalDuration * vehicle.rental_price;
+    const vehicleCost = rentalDuration * vehicle.rental_price;
+    const driverCost = selectedDriver ? rentalDuration * selectedDriver.price_per_day : 0;
+    const rentalCost = vehicleCost + driverCost;
 
     const orderData = {
       user_id: userId,
@@ -95,8 +92,6 @@ const OrderPage = () => {
 
     try {
       const response = await axios.post("http://localhost:5000/api/orders", orderData);
-      console.log("Order response:", response.data);
-
 
       if (selectedDriver?.id) {
         await axios.put(`http://localhost:5000/api/drivers/${selectedDriver.id}/availability`, {
@@ -112,6 +107,17 @@ const OrderPage = () => {
     }
   };
 
+  const calculateRentalCost = () => {
+    if (!pickupTime || !dropoffTime || !vehicle) return 0;
+    const pickupDate = new Date(pickupTime);
+    const dropoffDate = new Date(dropoffTime);
+    const duration = Math.ceil((dropoffDate - pickupDate) / (1000 * 3600 * 24));
+    if (duration <= 0) return 0;
+    const vehicleCost = duration * vehicle.rental_price;
+    const driverCost = selectedDriver ? duration * selectedDriver.price_per_day : 0;
+    return vehicleCost + driverCost;
+  };
+
   return (
     <>
       <Navbar />
@@ -122,7 +128,6 @@ const OrderPage = () => {
       >
         <div className="max-w-screen-xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-          {/* Display User ID at the top */}
           <div className="col-span-3 mb-6 text-center text-lg font-semibold text-white bg-black bg-opacity-40 p-2 rounded">
             User ID: {userId ? userId : "Loading..."}
           </div>
@@ -142,7 +147,7 @@ const OrderPage = () => {
                 <p><strong>Model:</strong> {vehicle.model}</p>
                 <p><strong>Category:</strong> {vehicle.category}</p>
                 <p><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
-                <p><strong>Rental Price:</strong> ${vehicle.rental_price} / day</p>
+                <p><strong>Rental Price:</strong> ₹{vehicle.rental_price} / day</p>
                 <p><strong>Availability:</strong> {vehicle.availability ? "✅ Available" : "❌ Not Available"}</p>
                 <p><strong>Description:</strong> {vehicle.description}</p>
                 <button
@@ -173,6 +178,7 @@ const OrderPage = () => {
                 <p><strong>Name:</strong> {selectedDriver.name}</p>
                 <p><strong>Phone:</strong> {selectedDriver.phone}</p>
                 <p><strong>License No:</strong> {selectedDriver.license_number}</p>
+                <p><strong>Price Per Day:</strong> ₹{selectedDriver.price_per_day}</p>
                 <p><strong>Description:</strong> {selectedDriver.description}</p>
               </div>
             ) : (
@@ -186,7 +192,7 @@ const OrderPage = () => {
             </button>
           </div>
 
-          {/* Rental Details Form */}
+          {/* Rental Form */}
           <div className="bg-white bg-opacity-90 rounded-xl p-6 shadow-md">
             <h3 className="text-xl font-bold text-gray-800 mb-3">Rental Details</h3>
             <div className="grid gap-3">
@@ -216,12 +222,20 @@ const OrderPage = () => {
                 onChange={(e) => setDropoffTime(e.target.value)}
                 className="p-2 border border-gray-300 rounded"
               />
+
               <button
                 onClick={handleConfirmOrder}
                 className="mt-2 bg-orange-500 text-white py-2 rounded hover:bg-orange-600"
               >
                 Confirm Order
               </button>
+
+              {/* Total Cost Preview */}
+              {pickupTime && dropoffTime && vehicle && (
+                <div className="text-lg font-semibold text-gray-700 mt-3">
+                  Total Rental Cost: ₹{calculateRentalCost()}
+                </div>
+              )}
             </div>
           </div>
         </div>

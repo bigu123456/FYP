@@ -101,6 +101,9 @@ const SelectDriverPage = () => {
                 <span className="font-medium">Availability:</span>{" "}
                 {driver.availability ? "Available" : "Not Available"}
               </p>
+              <p className="mt-1 font-semibold text-orange-600">
+                ₹{driver.price_per_day} / day
+              </p>
 
               <button
                 onClick={() => viewDriverDetails(driver)}

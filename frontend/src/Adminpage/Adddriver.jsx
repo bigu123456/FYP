@@ -13,6 +13,7 @@ const AddDriver = () => {
     email: "",
     license_number: "",
     description: "",
+    price_per_day: "",
   });
 
   const [image, setImage] = useState(null);
@@ -29,6 +30,19 @@ const AddDriver = () => {
     }
   };
 
+  const handleReset = () => {
+    setDriver({
+      name: "",
+      phone: "",
+      email: "",
+      license_number: "",
+      description: "",
+      price_per_day: "",
+    });
+    setImage(null);
+    setErrorMessages({});
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { isValid, errors } = validateAddDriver(driver, image);
@@ -37,23 +51,12 @@ const AddDriver = () => {
 
     try {
       const formData = new FormData();
-      formData.append("name", driver.name);
-      formData.append("phone", driver.phone);
-      formData.append("email", driver.email);
-      formData.append("license_number", driver.license_number);
-      formData.append("description", driver.description);
+      Object.keys(driver).forEach((key) => formData.append(key, driver[key]));
       if (image) formData.append("image", image);
 
       await axios.post("http://localhost:5000/api/drivers", formData);
       alert("Driver added successfully!");
-      setDriver({
-        name: "",
-        phone: "",
-        email: "",
-        license_number: "",
-        description: "",
-      });
-      setImage(null);
+      handleReset();
     } catch (error) {
       console.error("Error adding driver:", error);
       alert("An error occurred while adding the driver.");
@@ -68,7 +71,7 @@ const AddDriver = () => {
         <Header />
 
         <div className="flex flex-1">
-          {/* Left Hero Section */}
+          {/* Hero Image */}
           <div className="hidden md:flex w-1/2 bg-orange-100 items-center justify-center border-r-2 border-orange-200">
             <img
               src={heroImage}
@@ -77,7 +80,7 @@ const AddDriver = () => {
             />
           </div>
 
-          {/* Right Form Section */}
+          {/* Form Section */}
           <div className="w-full md:w-1/2 bg-white flex items-center justify-center p-10">
             <div className="w-full max-w-md">
               <h2 className="text-3xl font-bold text-orange-600 text-center mb-6">
@@ -85,11 +88,12 @@ const AddDriver = () => {
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                {[ 
+                {[
                   { label: "Driver Name", name: "name", type: "text" },
                   { label: "Phone Number", name: "phone", type: "text" },
                   { label: "Email Address", name: "email", type: "email" },
                   { label: "License Number", name: "license_number", type: "text" },
+                  { label: "Price Per Day", name: "price_per_day", type: "number" },
                 ].map((field) => (
                   <div key={field.name}>
                     <label className="block text-sm font-medium text-gray-700">
@@ -109,6 +113,7 @@ const AddDriver = () => {
                   </div>
                 ))}
 
+                {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Driver Description
@@ -126,6 +131,7 @@ const AddDriver = () => {
                   )}
                 </div>
 
+                {/* Image */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Driver Image
@@ -142,12 +148,27 @@ const AddDriver = () => {
                   )}
                 </div>
 
-                <div className="flex justify-between">
+                {/* Buttons Row */}
+                <div className="flex justify-between gap-2">
                   <button
                     type="submit"
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200 mr-2"
+                    className="flex-1 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium py-2 px-4 rounded-md transition"
                   >
                     Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium py-2 px-4 rounded-md transition"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 text-sm font-medium py-2 px-4 rounded-md transition"
+                  >
+                    Cancel
                   </button>
                 </div>
               </form>

@@ -22,6 +22,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "nodemon": "^2.0.15",
+    "pdfkit": "^0.17.0",
     "pg": "^8.14.1",
     "pg-hstore": "^2.3.4",
     "react-modal": "^3.16.3",

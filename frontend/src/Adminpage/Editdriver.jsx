@@ -4,7 +4,6 @@ import heroImage from "../images/Hero-page.png";
 import axios from "axios";
 import { validateEditDriver } from "./validation"; // ✅ Use the correct named export
 
-
 const EditDriver = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -12,9 +11,10 @@ const EditDriver = () => {
   const [driver, setDriver] = useState({
     name: "",
     phone: "",
-    email: "", // ✅ Added email
+    email: "",
     license_number: "",
     description: "",
+    price_per_day: "",
     availability: false,
     initialAvailability: false,
     image: null,
@@ -26,9 +26,10 @@ const EditDriver = () => {
   const [errorMessages, setErrorMessages] = useState({
     name: "",
     phone: "",
-    email: "", // ✅ Added email error
+    email: "",
     license_number: "",
     description: "",
+    price_per_day: "",
     image: "",
   });
 
@@ -71,18 +72,17 @@ const EditDriver = () => {
       driver.currentImage,
       driver.availability !== driver.initialAvailability
     );
-    
-    
-    setErrorMessages(errors);
 
+    setErrorMessages(errors);
     if (!isValid) return;
 
     try {
       const formData = new FormData();
       formData.append("name", driver.name);
       formData.append("phone", driver.phone);
-      formData.append("email", driver.email); // ✅ Add email
+      formData.append("email", driver.email);
       formData.append("license_number", driver.license_number);
+      formData.append("price_per_day", driver.price_per_day);
       formData.append("description", driver.description);
       formData.append("availability", driver.availability);
       if (image) {
@@ -151,6 +151,19 @@ const EditDriver = () => {
                 {errorMessages.email && <p className="text-red-500 text-sm">{errorMessages.email}</p>}
               </div>
 
+              {/* Price Per Day */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Price Per Day</label>
+                <input
+                  type="text"
+                  name="price_per_day"
+                  value={driver.price_per_day}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                />
+                {errorMessages.price_per_day && <p className="text-red-500 text-sm">{errorMessages.price_per_day}</p>}
+              </div>
+
               {/* License */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">License Number</label>
@@ -199,6 +212,13 @@ const EditDriver = () => {
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 />
                 {errorMessages.image && <p className="text-orange-600 text-sm">{errorMessages.image}</p>}
+                {driver.currentImage && !image && (
+                  <img
+                    src={`http://localhost:5000/uploads/${driver.currentImage}`}
+                    alt="Current"
+                    className="mt-2 h-24 object-cover rounded"
+                  />
+                )}
               </div>
 
               {/* Buttons */}
@@ -206,6 +226,7 @@ const EditDriver = () => {
                 <button type="submit" className="p-2 bg-orange-600 text-white rounded-md">Update</button>
                 <button type="button" onClick={() => navigate("/admin")} className="p-2 bg-orange-600 text-white rounded-md">Back</button>
               </div>
+
             </form>
           </div>
         </div>
