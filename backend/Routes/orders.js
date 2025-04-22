@@ -4,7 +4,7 @@ const pool = require("../db/Connection");
 const { sendConfirmation, sendDriverNotification } = require("../controllers/otpController");
 const { updateLoyaltyPoints } = require("./loyalty");
 
-// 🚗 CREATE A NEW ORDER
+// 🚗 CREATE A NEW ORDER (allows up to 10 users per vehicle at the same time)
 router.post("/orders", async (req, res) => {
   try {
     const {
@@ -17,14 +17,15 @@ router.post("/orders", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // ✅ Optional: Prevent overlapping bookings (instead of just count)
-    const overlappingCheck = await pool.query(
-      `SELECT * FROM orders
+    // ✅ NEW: Allow up to 10 concurrent bookings for the same vehicle and time
+    const concurrentBookings = await pool.query(
+      `SELECT COUNT(*) FROM orders
        WHERE vehicle_id = $1 AND NOT (dropoff_time <= $2 OR pickup_time >= $3)`,
       [vehicle_id, pickup_time, dropoff_time]
     );
-    if (overlappingCheck.rows.length > 0) {
-      return res.status(400).json({ success: false, message: "Vehicle is already booked for selected time." });
+
+    if (parseInt(concurrentBookings.rows[0].count) >= 10) {
+      return res.status(400).json({ success: false, message: "Vehicle is fully booked for selected time." });
     }
 
     // ✅ User and Vehicle Lookup
@@ -118,7 +119,7 @@ router.post("/orders", async (req, res) => {
       discount: discountPercent
     });
 
-    // Notify driver
+    // 📧 Notify driver
     if (driver.email) {
       await sendDriverNotification(driver.email, {
         driver_name: driver.name,
@@ -188,6 +189,5 @@ router.delete("/orders/:orderId", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete order" });
   }
 });
-
 
 module.exports = router;
