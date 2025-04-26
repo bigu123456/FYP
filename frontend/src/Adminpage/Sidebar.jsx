@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, Car, UserCheck, Calendar } from "lucide-react";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 min-h-screen bg-orange-600 text-white p-5">
+    <div className="fixed top-0 left-0 w-64 min-h-screen bg-orange-600 text-white p-5 z-10">
       <h2 className="text-xl font-bold flex items-center gap-2">
         <Car size={24} /> Vehicle Rental System
       </h2>
@@ -42,7 +42,7 @@ const Sidebar = () => {
         </li>
         <li className="py-2">
           <Link
-            to="/admin/booking"
+            to="/booking"
             className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
           >
             <Calendar size={20} /> <span>Booking</span>

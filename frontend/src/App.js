@@ -16,6 +16,7 @@ import DriverDetailsPage from "./elements/DriverDetailsPage";
 import OrderHistory from "./elements/OrderHistory"; // or the correct path if different
 import UserProfile from "./elements/UserProfile";
 import LoyaltyDashboard from "./elements/LoyaltyDashboard";
+import RequestForm from "./elements/RequestForm"
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -33,6 +34,7 @@ import PrivateRoute from './PrivateRoute';
 import PaymentComponent from "./components/PaymentForm";
 import Success from "./components/Success";
 import Failure from "./components/Failure";
+import UserRequestList from "./Adminpage/Userrequest";
 const App = () => {
   return (
     <Router>
@@ -60,6 +62,8 @@ const App = () => {
           <Route path="/payment-success" element={<Success/>} />
           <Route path="/payment-failure" element={<Failure/>} />
           <Route path ="/LoyaltyDashboard"element={<LoyaltyDashboard/>} />
+         
+          <Route path="RequestForm"element={<RequestForm/>} />
 
 
         
@@ -76,6 +80,8 @@ const App = () => {
           <Route path="/user-list" element={<UserList />} />
           <Route path="Booking" element={<Booking/>}/>
           <Route path="/vehicle-details/:id" element={<VehicleDetailsPage />} />
+          <Route path="/admin/userrequest" element={<UserRequestList />} />
+
 
          
 

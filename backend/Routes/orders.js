@@ -4,7 +4,7 @@ const pool = require("../db/Connection");
 const { sendConfirmation, sendDriverNotification } = require("../controllers/otpController");
 const { updateLoyaltyPoints } = require("./loyalty");
 
-// 🚗 CREATE A NEW ORDER (allows up to 10 users per vehicle at the same time)
+// CREATE A NEW ORDER (allows up to 10 users per vehicle at the same time)
 router.post("/orders", async (req, res) => {
   try {
     const {
@@ -12,12 +12,12 @@ router.post("/orders", async (req, res) => {
       pickup_location, dropoff_location, pickup_time, dropoff_time
     } = req.body;
 
-    // ✅ Basic validations
+    // Basic validations
     if (!vehicle_id || !user_id || !rental_price || !pickup_location || !dropoff_location || !pickup_time || !dropoff_time) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // ✅ NEW: Allow up to 10 concurrent bookings for the same vehicle and time
+    // NEW: Allow up to 10 concurrent bookings for the same vehicle and time
     const concurrentBookings = await pool.query(
       `SELECT COUNT(*) FROM orders
        WHERE vehicle_id = $1 AND NOT (dropoff_time <= $2 OR pickup_time >= $3)`,
@@ -28,7 +28,7 @@ router.post("/orders", async (req, res) => {
       return res.status(400).json({ success: false, message: "Vehicle is fully booked for selected time." });
     }
 
-    // ✅ User and Vehicle Lookup
+    // User and Vehicle Lookup
     const userCheck = await pool.query("SELECT id, email, name FROM users WHERE id = $1", [user_id]);
     if (userCheck.rows.length === 0)
       return res.status(404).json({ success: false, message: "User not found" });
@@ -48,7 +48,7 @@ router.post("/orders", async (req, res) => {
     const vehicle = vehicleQuery.rows[0];
     const user = userCheck.rows[0];
 
-    // ⭐ Loyalty Discount Logic
+    // Loyalty Discount Logic
     const loyaltyQuery = await pool.query("SELECT level FROM loyalty WHERE user_id = $1", [user_id]);
     const loyaltyLevel = loyaltyQuery.rows[0]?.level?.trim() || "Bronze";
 
@@ -59,7 +59,7 @@ router.post("/orders", async (req, res) => {
 
     const discountedPrice = parseFloat((rental_price - (rental_price * discountPercent / 100)).toFixed(2));
 
-    // 📝 Insert order into database
+    // Insert order into database
     const result = await pool.query(`
       INSERT INTO orders (
         vehicle_id, user_id, driver_id,
@@ -101,10 +101,10 @@ router.post("/orders", async (req, res) => {
 
     const createdOrder = result.rows[0];
 
-    // 🏆 Update loyalty points
+    // Update loyalty points
     await updateLoyaltyPoints(user_id, rental_price, pickup_time, dropoff_time);
 
-    // 📧 Send confirmation email to user
+    // Send confirmation email to user
     await sendConfirmation(user.email, {
       vehicle_brand: vehicle.brand,
       vehicle_model: vehicle.model,
@@ -119,7 +119,7 @@ router.post("/orders", async (req, res) => {
       discount: discountPercent
     });
 
-    // 📧 Notify driver
+    // Notify driver
     if (driver.email) {
       await sendDriverNotification(driver.email, {
         driver_name: driver.name,
@@ -136,11 +136,12 @@ router.post("/orders", async (req, res) => {
     res.status(201).json({ success: true, order: createdOrder });
 
   } catch (error) {
-    console.error("❌ Error creating order:", error.message, error.stack);
+    console.error(" Error creating order:", error.message, error.stack);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-// 📦 GET ALL ORDERS FOR A USER (with full vehicle & driver details + discount info)
+
+// GET ALL ORDERS FOR A USER (with full vehicle & driver details + discount info)
 router.get("/orders/user/:userId", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -166,13 +167,58 @@ router.get("/orders/user/:userId", async (req, res) => {
 
     res.json({ success: true, orders: result.rows });
   } catch (err) {
-    console.error("❌ Error fetching user orders:", err.message);
+    console.error(" Error fetching user orders:", err.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+// GET ALL ORDERS (including vehicle and driver details + discount info + all relevant IDs)
+router.get("/orders", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        o.order_id,
+        o.user_id,
+        o.vehicle_id,
+        o.driver_id,
+        o.pickup_location,
+        o.dropoff_location,
+        o.pickup_time,
+        o.dropoff_time,
+        o.original_price,
+        o.rental_price,
+        o.created_at,
+       
+       
+       
+        
+        d.name AS driver_name,
+        d.phone AS driver_phone,
+        d.license_number AS driver_license,
+        d.image AS driver_image,
+        
+        v.brand AS vehicle_brand,
+        v.model AS vehicle_model,
+        v.category AS vehicle_category,
+        v.fuel_type AS vehicle_fuel_type,
+        v.image_url AS vehicle_image,
+
+        ROUND(((o.original_price - o.rental_price) / o.original_price) * 100, 2) AS discount_applied,
+        ROUND((o.original_price - o.rental_price), 2) AS discount_amount
+      FROM orders o
+      LEFT JOIN drivers d ON o.driver_id = d.id
+      LEFT JOIN vehicles v ON o.vehicle_id = v.id
+      ORDER BY o.created_at DESC
+    `);
+
+    res.json({ success: true, orders: result.rows });
+  } catch (err) {
+    console.error("Error fetching all orders:", err.message);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 
-//  DELETE A SPECIFIC ORDER BY ID
+// DELETE A SPECIFIC ORDER BY ID
 router.delete("/orders/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -185,7 +231,7 @@ router.delete("/orders/:orderId", async (req, res) => {
 
     res.json({ success: true, message: "Order deleted", deletedOrder: result.rows[0] });
   } catch (err) {
-    console.error("❌ Error deleting order:", err.message);
+    console.error(" Error deleting order:", err.message);
     res.status(500).json({ success: false, message: "Failed to delete order" });
   }
 });

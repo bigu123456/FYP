@@ -20,21 +20,7 @@ const OrderHistory = () => {
     }
   }, [userId]);
 
-  const handleDeleteOrder = async (orderId) => {
-    const confirm = window.confirm("Are you sure you want to delete this order?");
-    if (!confirm) return;
-
-    try {
-      const response = await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
-      if (response.data.success) {
-        setOrders((prev) => prev.filter((order) => order.order_id !== orderId));
-      }
-    } catch (err) {
-      console.error("Failed to delete order:", err);
-      alert("Something went wrong while deleting the order.");
-    }
-  };
-
+  
   return (
     <>
       <Navbar />
@@ -98,12 +84,7 @@ const OrderHistory = () => {
                       <p><strong>Final Price:</strong> ₹{order.rental_price}</p>
                     </div>
 
-                    <button
-                      onClick={() => handleDeleteOrder(order.order_id)}
-                      className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-                    >
-                      Delete Order
-                    </button>
+                    
                   </div>
                 </div>
               </div>

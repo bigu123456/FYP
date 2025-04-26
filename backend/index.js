@@ -15,6 +15,8 @@ const { verifyToken, isAdmin } = require("./middlewares/authMiddleware");
 const profileRoutes = require('./Routes/profile'); // or './Routes/user'
 const sheduler=require("./Routes/scheduler"); 
 const { loyaltyRouter } = require("./Routes/loyalty");
+const vehicleRequestsRoute = require("./Routes/vehicleRequests");
+
 
 
 
@@ -42,6 +44,7 @@ app.use("/api/auth", authRoutes);  // Add the auth routes
 app.use("/api", userRoutes);  // Register the users route
 app.use('/api', profileRoutes);
 app.use("/api/loyalty", loyaltyRouter); //
+app.use('/api/vehicle-requests', vehicleRequestsRoute);
 
 
 // Admin-only route example

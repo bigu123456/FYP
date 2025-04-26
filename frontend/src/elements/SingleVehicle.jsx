@@ -50,7 +50,7 @@ const VehicleDetails = () => {
 
             {vehicle.description && (
               <div className="mt-4">
-                <h3 className="text-xl font-semibold mb-2">📋 Description</h3>
+                <h3 className="text-xl font-semibold mb-2"> Description</h3>
                 <p className="leading-relaxed">{vehicle.description}</p>
               </div>
             )}
@@ -60,13 +60,13 @@ const VehicleDetails = () => {
                 onClick={handleBooking}
                 className="w-full sm:w-auto px-6 py-2 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-all"
               >
-                🚀 Book Now
+                 Book Now
               </button>
               <button
                 onClick={handleCancel}
                 className="w-full sm:w-auto px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-all"
               >
-                ❌ Cancel
+                Cancel
               </button>
             </div>
           </div>

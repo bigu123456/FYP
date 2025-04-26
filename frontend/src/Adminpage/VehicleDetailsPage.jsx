@@ -12,7 +12,7 @@ const VehicleDetails = () => {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 ml-64"> {/* Added ml-64 to push content away from sidebar */}
         {/* Header */}
         <Header />
 
@@ -34,13 +34,13 @@ const VehicleDetails = () => {
 
             <div className="p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700 text-lg">
-                <p><strong>🚗 Brand:</strong> {vehicle.brand}</p>
-                <p><strong>📍 Model:</strong> {vehicle.model}</p>
-                <p><strong>🏷️ Category:</strong> {vehicle.category}</p>
-                <p><strong>🔧 Type:</strong> {vehicle.type}</p>
-                <p><strong>⛽ Fuel Type:</strong> {vehicle.fuel_type}</p>
-                <p><strong>💵 Rental Price:</strong> ${vehicle.rental_price}</p>
-                <p><strong>✅ Availability:</strong> {vehicle.availability ? "Available" : "Not Available"}</p>
+                <p><strong>Brand:</strong> {vehicle.brand}</p>
+                <p><strong> Model:</strong> {vehicle.model}</p>
+                <p><strong> Category:</strong> {vehicle.category}</p>
+                <p><strong> Type:</strong> {vehicle.type}</p>
+                <p><strong> Fuel Type:</strong> {vehicle.fuel_type}</p>
+                <p><strong> Rental Price:</strong> ${vehicle.rental_price}</p>
+                <p><strong> Availability:</strong> {vehicle.availability ? "Available" : "Not Available"}</p>
               </div>
 
               {/* Description Section */}

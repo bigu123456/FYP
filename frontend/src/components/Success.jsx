@@ -37,7 +37,7 @@ const Success = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/payment-status",
+        "http://localhost:5000/api/payment-status",
         {
           product_id,
           pidx: queryParams.get("pidx"),

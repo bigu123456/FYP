@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "./Sidebar"; // Import Sidebar
+import Header from "./Header"; // Import Header
 
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
@@ -100,111 +102,114 @@ const Vehicles = () => {
   };
 
   return (
-    <div className="p-5">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all font-bold"
-      >
-        Back
-      </button>
+    <div className="flex">
+      {/* Sidebar */}
+      <Sidebar />
 
-      <h2 className="text-xl font-bold mb-4">Vehicle List</h2>
+      {/* Main Content */}
+      <div className="flex-1 p-5 ml-64"> {/* Added margin-left to push content away from the sidebar */}
+        <Header /> {/* Add Header component */}
 
-      {vehicles.length === 0 ? (
-        <p>No vehicles available.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {vehicles.map((vehicle) => (
-            <div
-              key={vehicle.id}
-              className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
-            >
-              <img
-                src={`http://localhost:5000${vehicle.image_url}`}
-                alt={vehicle.model}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <div className="space-y-1">
-                <p><strong>Brand:</strong> {vehicle.brand}</p>
-                <p><strong>Model:</strong> {vehicle.model}</p>
-                <p><strong>Category:</strong> {vehicle.category}</p>
-                <p><strong>Type:</strong> {vehicle.type}</p>
-                <p><strong>Fuel:</strong> {vehicle.fuel_type}</p>
-                <p><strong>Price:</strong> ${vehicle.rental_price}</p>
-                <p><strong>Available:</strong> {vehicle.availability ? "✅" : "❌"}</p>
+        
+
+        <h2 className="text-xl font-bold mb-4">Vehicle List</h2>
+
+        {vehicles.length === 0 ? (
+          <p>No vehicles available.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {vehicles.map((vehicle) => (
+              <div
+                key={vehicle.id}
+                className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+              >
+                <img
+                  src={`http://localhost:5000${vehicle.image_url}`}
+                  alt={vehicle.model}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <div className="space-y-1">
+                  <p><strong>Brand:</strong> {vehicle.brand}</p>
+                  <p><strong>Model:</strong> {vehicle.model}</p>
+                  <p><strong>Category:</strong> {vehicle.category}</p>
+                  <p><strong>Type:</strong> {vehicle.type}</p>
+                  <p><strong>Fuel:</strong> {vehicle.fuel_type}</p>
+                  <p><strong>Price:</strong> ${vehicle.rental_price}</p>
+                  <p><strong>Available:</strong> {vehicle.availability ? "✅" : "❌"}</p>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => handleViewDetails(vehicle)}
+                    className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => openEditModal(vehicle)}
+                    className="bg-yellow-500 text-white text-sm px-3 py-1 rounded hover:bg-yellow-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(vehicle.id)}
+                    className="bg-red-600 text-white text-sm px-3 py-1 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+
               </div>
-
-              <div className="mt-4 flex gap-2">
-  <button
-    onClick={() => handleViewDetails(vehicle)}
-    className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700"
-  >
-    View
-  </button>
-  <button
-    onClick={() => openEditModal(vehicle)}
-    className="bg-yellow-500 text-white text-sm px-3 py-1 rounded hover:bg-yellow-600"
-  >
-    Edit
-  </button>
-  <button
-    onClick={() => handleDelete(vehicle.id)}
-    className="bg-red-600 text-white text-sm px-3 py-1 rounded hover:bg-red-700"
-  >
-    Delete
-  </button>
-</div>
-
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {editingVehicle && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <form
-            onSubmit={handleEditSubmit}
-            className="bg-white p-6 rounded-lg w-full max-w-lg space-y-4"
-          >
-            <h3 className="text-xl font-bold">Edit Vehicle</h3>
-            {["brand", "model", "category", "type", "fuel_type", "rental_price", "description"].map((field) => (
-              <input
-                key={field}
-                type="text"
-                name={field}
-                value={editForm[field]}
-                onChange={handleEditChange}
-                placeholder={field.replace("_", " ").toUpperCase()}
-                className="w-full p-2 border rounded"
-                required={field !== "description"}
-              />
             ))}
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleEditChange}
-              className="w-full"
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setEditingVehicle(null)}
-                className="bg-gray-400 text-white px-4 py-2 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-              >
-                Save
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {editingVehicle && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <form
+              onSubmit={handleEditSubmit}
+              className="bg-white p-6 rounded-lg w-full max-w-lg space-y-4"
+            >
+              <h3 className="text-xl font-bold">Edit Vehicle</h3>
+              {["brand", "model", "category", "type", "fuel_type", "rental_price", "description"].map((field) => (
+                <input
+                  key={field}
+                  type="text"
+                  name={field}
+                  value={editForm[field]}
+                  onChange={handleEditChange}
+                  placeholder={field.replace("_", " ").toUpperCase()}
+                  className="w-full p-2 border rounded"
+                  required={field !== "description"}
+                />
+              ))}
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleEditChange}
+                className="w-full"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingVehicle(null)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

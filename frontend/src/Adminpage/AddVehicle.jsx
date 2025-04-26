@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+import Sidebar from "./Sidebar"; // Import Sidebar component
+import Header from "./Header";   // Import Header component
 import LoginImage from "../images/loginimage.png"; // Ensure correct path to image
 
 const AddVehicle = () => {
@@ -16,7 +17,6 @@ const AddVehicle = () => {
 
   const [message, setMessage] = useState(""); // Success or error message
   
-
   // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -77,121 +77,115 @@ const AddVehicle = () => {
   }
 };
 
-
   return (
     <div className="flex min-h-screen">
-      {/* Left side: Background image */}
-      <div
-        className="flex-1 bg-orange-500 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${LoginImage})`,
-          backgroundSize: "contain",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-        }}
-      ></div>
+      {/* Sidebar */}
+      <Sidebar />
+      
+      <div className="flex-1 ml-16">
+        {/* Header */}
+        <Header />
+        
+        {/* Right side: Form */}
+        <div className="flex justify-center items-center min-h-screen bg-white p-6">
+          <div className="bg-orange-200 p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-2xl font-bold text-center mb-4">Add Vehicle</h2>
 
-      {/* Right side: Form */}
-      <div className="flex-1 bg-white p-6 flex items-center justify-center">
-        <div className="bg-orange-200 p-6 rounded-lg shadow-lg w-full max-w-md">
-          <h2 className="text-2xl font-bold text-center mb-4">Add Vehicle</h2>
+            {/* Success/Error Message */}
+            {message && (
+              <div className="mb-4 text-center text-white p-2 rounded bg-green-500">
+                {message}
+              </div>
+            )}
 
-          {/* Success/Error Message */}
-          {message && (
-            <div className="mb-4 text-center text-white p-2 rounded bg-green-500">
-              {message}
-            </div>
-          )}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input
+                type="text"
+                name="brand"
+                placeholder="Brand"
+                value={formData.brand}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <input
+                type="text"
+                name="model"
+                placeholder="Model"
+                value={formData.model}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <input
+                type="text"
+                name="category"
+                placeholder="Category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <input
+                type="text"
+                name="type"
+                placeholder="Type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <input
+                type="text"
+                name="fuel_type"
+                placeholder="Fuel Type"
+                value={formData.fuel_type}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <input
+                type="number"
+                name="rental_price"
+                placeholder="Rental Price"
+                value={formData.rental_price}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              
+              {/* Description Input */}
+              <textarea
+                name="description"
+                placeholder="Vehicle Description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                rows="4"
+                required
+              />
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <input
-              type="text"
-              name="brand"
-              placeholder="Brand"
-              value={formData.brand}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-            <input
-              type="text"
-              name="model"
-              placeholder="Model"
-              value={formData.model}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-            <input
-              type="text"
-              name="category"
-              placeholder="Category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-            <input
-              type="text"
-              name="type"
-              placeholder="Type"
-              value={formData.type}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-            <input
-              type="text"
-              name="fuel_type"
-              placeholder="Fuel Type"
-              value={formData.fuel_type}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-            <input
-              type="number"
-              name="rental_price"
-              placeholder="Rental Price"
-              value={formData.rental_price}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              required
-            />
-            
-            {/* Description Input */}
-            <textarea
-              name="description"
-              placeholder="Vehicle Description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-              rows="4"
-              required
-            />
+              {/* Image Upload */}
+              <input
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                className="w-full p-2 border rounded"
+                accept="image/*"
+                required
+              />
 
-            {/* Image Upload */}
-            <input
-              type="file"
-              name="image"
-              onChange={handleImageChange}
-              className="w-full p-2 border rounded"
-              accept="image/*"
-              required
-            />
-
-            {/* Buttons */}
-            <div className="flex justify-between mt-4">
-              <button
-                type="submit"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all"
-              >
-                Add Vehicle
-              </button>
-
-             
-            </div>
-          </form>
+              {/* Buttons */}
+              <div className="flex justify-between mt-4">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all"
+                >
+                  Add Vehicle
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>

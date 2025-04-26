@@ -3,31 +3,48 @@ const pool = require("../db/Connection");
 
 const router = express.Router();
 
-//  Update loyalty points based on rental details
-async function updateLoyaltyPoints(userId, rentalPrice) {
+async function updateLoyaltyPoints(userId) {
   try {
-    const pointsEarned = Math.round(rentalPrice);
+    // Fetch the number of completed bookings for the user
+    const orderCountQuery = await pool.query(
+      "SELECT COUNT(*) AS order_count FROM orders WHERE user_id = $1",
+      [userId]
+    );
+    const orderCount = parseInt(orderCountQuery.rows[0].order_count, 10);
+
+    // Determine bonus points based on the number of orders
+    let bonusPoints = 0;
+    if (orderCount >= 25) {
+      bonusPoints = 500;  // 500 points for 25+ orders
+    } else if (orderCount >= 10) {
+      bonusPoints = 250;  // 200 points for 10-24 orders
+    } else if (orderCount >= 5) {
+      bonusPoints = 100;   // 100 points for 5-9 orders
+    }
+
+    // Calculate total points as order count + bonus points
+    const totalPoints = orderCount + bonusPoints;
 
     // Check if loyalty points exist for the user
     const existing = await pool.query("SELECT * FROM loyalty WHERE user_id = $1", [userId]);
 
-    if (existing.rows.length > 0) {
-      const newPoints = existing.rows[0].points + pointsEarned;
-      let level = "Bronze";
-      if (newPoints >= 500) level = "Platinum";
-      else if (newPoints >= 300) level = "Gold";
-      else if (newPoints >= 100) level = "Silver";
+    // Determine loyalty level based on total points
+    let level = "Bronze";
+    if (totalPoints >= 500) level = "Platinum";
+    else if (totalPoints >= 300) level = "Gold";
+    else if (totalPoints >= 100) level = "Silver";
 
-      // Update loyalty points
+    if (existing.rows.length > 0) {
+      // Update loyalty points if user already has an entry
       await pool.query(
         "UPDATE loyalty SET points = $1, level = $2, updated_at = NOW() WHERE user_id = $3",
-        [newPoints, level, userId]
+        [totalPoints, level, userId]
       );
     } else {
       // Create new loyalty entry if not exists
       await pool.query(
         "INSERT INTO loyalty (user_id, points, level, updated_at) VALUES ($1, $2, 'Bronze', NOW())",
-        [userId, pointsEarned]
+        [userId, totalPoints]
       );
     }
   } catch (error) {
@@ -36,61 +53,34 @@ async function updateLoyaltyPoints(userId, rentalPrice) {
   }
 }
 
-// Get user profile with loyalty points and level
-router.get("/user/:id", async (req, res) => {
+
+// Reset points when the user goes back to normal behavior
+async function resetLoyaltyPoints(userId) {
   try {
-    const userId = req.params.id;
-
-    // Fetch user details
-    const userQuery = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
-    if (userQuery.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Fetch loyalty details
-    const loyaltyQuery = await pool.query("SELECT points, level FROM loyalty WHERE user_id = $1", [userId]);
-    const loyalty = loyaltyQuery.rows[0] || { points: 0, level: "Bronze" };
-
-    // Fetch completed orders count for the user
-    const orderCountQuery = await pool.query(
-      "SELECT COUNT(*) AS order_count FROM orders WHERE user_id = $1 AND status = 'completed'",
-      [userId]
-    );
-    const orderCount = parseInt(orderCountQuery.rows[0].order_count, 10);
-
-    res.json({
-      success: true,
-      user: userQuery.rows[0],
-      loyalty,
-      order_count: orderCount,
-    });
-  } catch (err) {
-    console.error("Error fetching user profile with loyalty info:", err.message);
-    res.status(500).json({ success: false, message: "Server error" });
+    // Reset points for the user, they can start earning points again
+    await pool.query("UPDATE loyalty SET points = 0, level = 'Bronze', updated_at = NOW() WHERE user_id = $1", [userId]);
+  } catch (error) {
+    console.error("Error resetting loyalty points:", error.message);
+    throw new Error("Failed to reset loyalty points");
   }
-});
-
-// Get all users and their loyalty points, ordered by points
-router.get("/loyalty-users", async (req, res) => {
+}
+router.get("/loyalty/:userId", async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT 
-         u.id AS id, u.name, u.email,
-         COALESCE(l.points, 0) AS loyalty_points,
-         COALESCE(l.level, 'Bronze') AS loyalty_level,
-         (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id AND o.status = 'completed') AS order_count
-       FROM users u
-       LEFT JOIN loyalty l ON u.id = l.user_id
-       ORDER BY loyalty_points DESC`
-    );
-    res.json({ success: true, users: result.rows });
+    const { userId } = req.params;
+    const result = await pool.query("SELECT level FROM loyalty WHERE user_id = $1", [userId]);
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
+    } else {
+      res.json({ level: "Bronze" });
+    }
   } catch (err) {
-    console.error("Fetch error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error(err);
+    res.status(500).send("Error fetching loyalty data");
   }
 });
 
 module.exports = {
   loyaltyRouter: router,
-  updateLoyaltyPoints
+  updateLoyaltyPoints,
+  resetLoyaltyPoints
 };
