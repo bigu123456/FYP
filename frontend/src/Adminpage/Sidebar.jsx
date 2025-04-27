@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Users, Car, UserCheck, Calendar } from "lucide-react";
+import { LayoutDashboard, Users, Car, UserCheck, Calendar, UserPlus } from "lucide-react";
 
 const Sidebar = () => {
   return (
@@ -62,6 +62,15 @@ const Sidebar = () => {
             className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
           >
             <UserCheck size={20} /> <span>Add Driver</span>
+          </Link>
+        </li>
+        {/* User Requests at the end */}
+        <li className="py-2">
+          <Link
+            to="/admin/userrequest"
+            className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
+          >
+            <UserPlus size={20} /> <span>User Requests</span>
           </Link>
         </li>
       </ul>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import LoyaltyInfo from './LoyaltyInfo'; // 👈 Importing the loyalty component
 
 const UserProfile = ({ onClose }) => {
   const [user, setUser] = useState({});
@@ -10,12 +9,14 @@ const UserProfile = ({ onClose }) => {
     email: '',
     age: '',
     city: '',
-    contact_number: ''
+    contact_number: '',
+    profile_image: null // To store the selected image
   });
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
 
+  // Fetch user data on component mount
   useEffect(() => {
     if (!userId) {
       console.warn("User not logged in.");
@@ -30,33 +31,64 @@ const UserProfile = ({ onClose }) => {
           email: res.data.email || '',
           age: res.data.age || '',
           city: res.data.city || '',
-          contact_number: res.data.contact_number || ''
+          contact_number: res.data.contact_number || '',
+          profile_image: res.data.profile_image || null
         });
       })
       .catch(err => console.error(err));
   }, [userId]);
 
+  // Handle form input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle file input change (profile image)
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, profile_image: e.target.files[0] });
+  };
+
+  // Submit form data to the backend
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate numeric fields
+    if (isNaN(formData.age) || formData.age === '') {
+      formData.age = null; // Set to null if invalid
+    }
+
+    if (formData.contact_number === '') {
+      formData.contact_number = null; // Set to null if empty
+    }
+
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('email', formData.email);
+    data.append('age', formData.age);
+    data.append('city', formData.city);
+    data.append('contact_number', formData.contact_number);
+
+    if (formData.profile_image) {
+      data.append('profile_image', formData.profile_image); // Append image file if available
+    }
+
     try {
       await axios.put(
         `http://localhost:5000/api/user/${userId}/update-profile`,
-        formData
+        data,
+        { headers: { 'Content-Type': 'multipart/form-data' } } // Important for file upload
       );
       alert('Profile updated successfully!');
-      onClose(); // optional
+      onClose(); // Close the profile form after successful update
     } catch (err) {
       console.error('Update failed:', err);
       alert('Update failed!');
     }
   };
 
+  // Close the profile modal
   const handleClose = () => {
-    navigate('/');
+    navigate('/'); // Navigate to the homepage
   };
 
   return (
@@ -113,6 +145,12 @@ const UserProfile = ({ onClose }) => {
             onChange={handleChange}
             className="mb-4 block w-full border px-3 py-2 rounded"
           />
+          <input
+            type="file"
+            name="profile_image"
+            onChange={handleFileChange}
+            className="mb-4 block w-full"
+          />
           <button
             type="submit"
             className="bg-orange-500 text-white px-4 py-2 rounded w-full"
@@ -121,8 +159,7 @@ const UserProfile = ({ onClose }) => {
           </button>
         </form>
 
-        {/* 👇 Loyalty Info Section */}
-        <LoyaltyInfo userId={userId} />
+       
       </div>
     </div>
   );
