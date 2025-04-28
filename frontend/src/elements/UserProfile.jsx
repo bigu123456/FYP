@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { validateRegistration } from './validateRegistration';
 
 const UserProfile = ({ onClose }) => {
   const [user, setUser] = useState({});
@@ -10,13 +11,13 @@ const UserProfile = ({ onClose }) => {
     age: '',
     city: '',
     contact_number: '',
-    profile_image: null // To store the selected image
+    password: '',
+    confirmPassword: ''
   });
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
 
-  // Fetch user data on component mount
   useEffect(() => {
     if (!userId) {
       console.warn("User not logged in.");
@@ -32,63 +33,73 @@ const UserProfile = ({ onClose }) => {
           age: res.data.age || '',
           city: res.data.city || '',
           contact_number: res.data.contact_number || '',
-          profile_image: res.data.profile_image || null
+          password: '',
+          confirmPassword: ''
         });
       })
       .catch(err => console.error(err));
   }, [userId]);
 
-  // Handle form input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle file input change (profile image)
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, profile_image: e.target.files[0] });
-  };
-
-  // Submit form data to the backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate numeric fields
+    // Validate form fields
+    const errors = validateRegistration({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password ? formData.password : 'DummyPassword123',
+      confirmPassword: formData.password ? formData.confirmPassword : 'DummyPassword123',
+      number: formData.contact_number,
+      city: formData.city,
+      age: formData.age
+    });
+
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+      return;
+    }
+
     if (isNaN(formData.age) || formData.age === '') {
-      formData.age = null; // Set to null if invalid
+      formData.age = null;
     }
 
     if (formData.contact_number === '') {
-      formData.contact_number = null; // Set to null if empty
+      formData.contact_number = null;
     }
 
-    const data = new FormData();
-    data.append('name', formData.name);
-    data.append('email', formData.email);
-    data.append('age', formData.age);
-    data.append('city', formData.city);
-    data.append('contact_number', formData.contact_number);
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      age: formData.age,
+      city: formData.city,
+      contact_number: formData.contact_number
+    };
 
-    if (formData.profile_image) {
-      data.append('profile_image', formData.profile_image); // Append image file if available
+    if (formData.password) {
+      payload.password = formData.password; // Only add password if user entered it
     }
 
     try {
-      await axios.put(
+      const res = await axios.put(
         `http://localhost:5000/api/user/${userId}/update-profile`,
-        data,
-        { headers: { 'Content-Type': 'multipart/form-data' } } // Important for file upload
+        payload
       );
+
+      localStorage.setItem('userInfo', JSON.stringify(res.data));
       alert('Profile updated successfully!');
-      onClose(); // Close the profile form after successful update
+      onClose();
     } catch (err) {
       console.error('Update failed:', err);
       alert('Update failed!');
     }
   };
 
-  // Close the profile modal
   const handleClose = () => {
-    navigate('/'); // Navigate to the homepage
+    navigate('/');
   };
 
   return (
@@ -145,21 +156,32 @@ const UserProfile = ({ onClose }) => {
             onChange={handleChange}
             className="mb-4 block w-full border px-3 py-2 rounded"
           />
+
+          {/* Password fields */}
           <input
-            type="file"
-            name="profile_image"
-            onChange={handleFileChange}
-            className="mb-4 block w-full"
+            type="password"
+            name="password"
+            value={formData.password}
+            placeholder="New Password (optional)"
+            onChange={handleChange}
+            className="mb-2 block w-full border px-3 py-2 rounded"
           />
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            placeholder="Confirm New Password"
+            onChange={handleChange}
+            className="mb-4 block w-full border px-3 py-2 rounded"
+          />
+
           <button
             type="submit"
-            className="bg-orange-500 text-white px-4 py-2 rounded w-full"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"
           >
             Update Profile
           </button>
         </form>
-
-       
       </div>
     </div>
   );

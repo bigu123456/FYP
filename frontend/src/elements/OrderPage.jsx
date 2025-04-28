@@ -13,12 +13,21 @@ const OrderPage = () => {
   const [selectedDriver, setSelectedDriver] = useState(location.state?.driver || null);
   const [userId, setUserId] = useState(null);
   const [loyaltyLevel, setLoyaltyLevel] = useState("Bronze");
+  const [loyaltyLoading, setLoyaltyLoading] = useState(true);
   const [showConfirmationBox, setShowConfirmationBox] = useState(false);
 
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropoffLocation, setDropoffLocation] = useState('');
   const [pickupTime, setPickupTime] = useState('');
   const [dropoffTime, setDropoffTime] = useState('');
+
+  const [priceSummary, setPriceSummary] = useState({
+    originalCost: 0,
+    discount: 0,
+    saved: 0,
+    finalPrice: 0,
+    duration: 0
+  });
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
@@ -31,17 +40,6 @@ const OrderPage = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (location.state?.vehicle) {
-      setVehicle(location.state.vehicle);
-    } else {
-      fetch(`http://localhost:5000/api/vehicles/${id}`)
-        .then((res) => res.json())
-        .then((vehicleData) => setVehicle(vehicleData))
-        .catch((err) => console.error("Error fetching vehicle:", err));
-    }
-  }, [id, location.state?.vehicle]);
-
-  useEffect(() => {
     if (location.state?.driver !== undefined) {
       setSelectedDriver(location.state.driver);
     }
@@ -50,8 +48,14 @@ const OrderPage = () => {
   useEffect(() => {
     if (userId) {
       axios.get(`http://localhost:5000/api/loyalty/${userId}`)
-        .then(res => setLoyaltyLevel(res.data.level))
-        .catch(err => console.error("Error fetching loyalty level:", err));
+        .then(res => {
+          setLoyaltyLevel(res.data.level);
+          setLoyaltyLoading(false);
+        })
+        .catch(err => {
+          console.error("Error fetching loyalty level:", err);
+          setLoyaltyLoading(false);
+        });
     }
   }, [userId]);
 
@@ -64,13 +68,13 @@ const OrderPage = () => {
     }
   };
 
-  const calculateFinalPrice = () => {
-    if (!pickupTime || !dropoffTime || !vehicle) return { originalCost: 0, discount: 0, saved: 0, finalPrice: 0 };
+  useEffect(() => {
+    if (loyaltyLoading || !pickupTime || !dropoffTime || !vehicle) return;
 
     const pickupDate = new Date(pickupTime);
     const dropoffDate = new Date(dropoffTime);
     const duration = Math.ceil((dropoffDate - pickupDate) / (1000 * 3600 * 24));
-    if (duration <= 0) return { originalCost: 0, discount: 0, saved: 0, finalPrice: 0 };
+    if (duration <= 0) return;
 
     const vehicleCost = duration * vehicle.rental_price;
     const driverCost = selectedDriver ? duration * selectedDriver.price_per_day : 0;
@@ -79,18 +83,15 @@ const OrderPage = () => {
     const saved = (originalCost * discount) / 100;
     const finalPrice = originalCost - saved;
 
-    return { originalCost, discount, saved, finalPrice, duration };
-  };
+    setPriceSummary({ originalCost, discount, saved, finalPrice, duration });
+  }, [pickupTime, dropoffTime, vehicle, loyaltyLevel, selectedDriver, loyaltyLoading]);
 
   const handleConfirmOrder = async () => {
-    const { originalCost, discount, saved, finalPrice, duration } = calculateFinalPrice();
-
     if (!pickupLocation || !dropoffLocation || !pickupTime || !dropoffTime) {
       alert("All fields must be filled in.");
       return;
     }
-
-    if (duration <= 0) {
+    if (priceSummary.duration <= 0) {
       alert("Dropoff time must be after pickup time.");
       return;
     }
@@ -99,12 +100,12 @@ const OrderPage = () => {
       user_id: userId,
       vehicle_id: vehicle.id,
       driver_id: selectedDriver?.id || null,
-      rental_price: finalPrice,
+      rental_price: priceSummary.finalPrice,
       pickup_location: pickupLocation,
       dropoff_location: dropoffLocation,
       pickup_time: pickupTime,
       dropoff_time: dropoffTime,
-      rental_duration: duration,
+      rental_duration: priceSummary.duration,
       vehicle_model: vehicle.model,
       vehicle_brand: vehicle.brand,
       vehicle_fuel_type: vehicle.fuel_type,
@@ -115,27 +116,23 @@ const OrderPage = () => {
       driver_license: selectedDriver?.license_number || null,
       driver_description: selectedDriver?.description || null,
       driver_image: selectedDriver?.image || null,
-      loyalty_discount: discount,
-      loyalty_saved: saved,
+      loyalty_discount: priceSummary.discount,
+      loyalty_saved: priceSummary.saved,
     };
 
     try {
       await axios.post("http://localhost:5000/api/orders", orderData);
-
       if (selectedDriver?.id) {
         await axios.put(`http://localhost:5000/api/drivers/${selectedDriver.id}/availability`, {
           availability: false,
         });
       }
-
       setShowConfirmationBox(true);
     } catch (error) {
       console.error("Error during order confirmation:", error);
       alert("Something went wrong. Please try again.");
     }
   };
-
-  const { originalCost, discount, saved, finalPrice } = calculateFinalPrice();
 
   const handleConfirmationClose = () => {
     setShowConfirmationBox(false);
@@ -147,15 +144,15 @@ const OrderPage = () => {
       <Navbar />
 
       <div className="min-h-screen bg-[#f7f8fa] px-4 py-10">
-        {/* Confirmation Modal */}
         {showConfirmationBox && (
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
               <h2 className="text-lg font-bold mb-4 text-gray-800">Order Confirmed</h2>
-              <p><strong>Loyalty Discount:</strong> {discount}%</p>
-              <p><strong>Original Price:</strong> ₹{originalCost.toFixed(2)}</p>
-              <p><strong>You Saved:</strong> ₹{saved.toFixed(2)}</p>
-              <p className="text-xl font-bold text-green-600 mt-4">Final Price: ₹{finalPrice.toFixed(2)}</p>
+              <p><strong>Loyalty Discount:</strong> {priceSummary.discount}%</p>
+              <p><strong>Original Price:</strong> ₹{priceSummary.originalCost.toFixed(2)}</p>
+              <p><strong>You Saved:</strong> ₹{priceSummary.saved.toFixed(2)}</p>
+              <p className="text-xl font-bold text-green-600 mt-4">Final Price: ₹{priceSummary.finalPrice.toFixed(2)}</p>
+              <p className="mt-2 text-green-600 font-medium">Congratulations! Your order is confirmed!</p>
               <button
                 className="mt-4 w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600"
                 onClick={handleConfirmationClose}>
@@ -174,7 +171,7 @@ const OrderPage = () => {
               <p className="text-sm text-gray-600"><strong>Brand:</strong> {vehicle?.brand}</p>
               <p className="text-sm text-gray-600"><strong>Model:</strong> {vehicle?.model}</p>
               <p className="text-sm text-gray-600"><strong>Fuel:</strong> {vehicle?.fuel_type}</p>
-              <p className="text-sm text-gray-600"><strong>category:</strong> {vehicle?.category}</p>
+              <p className="text-sm text-gray-600"><strong>Category:</strong> {vehicle?.category}</p>
               <p className="text-sm text-gray-600"><strong>Price:</strong> ₹{vehicle?.rental_price} /day</p>
               <p className="text-xs text-gray-500 mt-2">{vehicle?.description}</p>
               <button
@@ -227,14 +224,21 @@ const OrderPage = () => {
               </button>
             </div>
 
-            {pickupTime && dropoffTime && vehicle && (
-              <div className="mt-6 p-4 bg-gray-50 rounded-md">
-                <h3 className="text-md font-semibold text-gray-700 mb-2">Payment Summary</h3>
-                <p className="text-sm"><strong>Original Price:</strong> ₹{originalCost.toFixed(2)}</p>
-                <p className="text-sm"><strong>Discount:</strong> {discount}%</p>
-                <p className="text-sm"><strong>You Saved:</strong> ₹{saved.toFixed(2)}</p>
-                <p className="text-xl font-bold text-green-600 mt-2">Final Price: ₹{finalPrice.toFixed(2)}</p>
+            {/* Payment Summary */}
+            {loyaltyLoading ? (
+              <div className="mt-6 p-4 bg-gray-100 rounded-md text-center">
+                <p className="text-gray-600">Calculating Payment Summary...</p>
               </div>
+            ) : (
+              pickupTime && dropoffTime && vehicle && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-md">
+                  <h3 className="text-md font-semibold text-gray-700 mb-2">Payment Summary</h3>
+                  <p className="text-sm"><strong>Original Price:</strong> ₹{priceSummary.originalCost.toFixed(2)}</p>
+                  <p className="text-sm"><strong>Discount:</strong> {priceSummary.discount}%</p>
+                  <p className="text-sm"><strong>You Saved:</strong> ₹{priceSummary.saved.toFixed(2)}</p>
+                  <p className="text-xl font-bold text-green-600 mt-2">Final Price: ₹{priceSummary.finalPrice.toFixed(2)}</p>
+                </div>
+              )
             )}
           </div>
         </div>

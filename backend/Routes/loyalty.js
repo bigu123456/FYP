@@ -15,11 +15,11 @@ async function updateLoyaltyPoints(userId) {
     // Determine bonus points based on the number of orders
     let bonusPoints = 0;
     if (orderCount >= 25) {
-      bonusPoints = 500;  // 500 points for 25+ orders
+      bonusPoints = 500; // 500 points for 25+ orders
     } else if (orderCount >= 10) {
-      bonusPoints = 250;  // 200 points for 10-24 orders
+      bonusPoints = 250; // 250 points for 10-24 orders
     } else if (orderCount >= 5) {
-      bonusPoints = 100;   // 100 points for 5-9 orders
+      bonusPoints = 100; // 100 points for 5-9 orders
     }
 
     // Calculate total points as order count + bonus points
@@ -41,10 +41,10 @@ async function updateLoyaltyPoints(userId) {
         [totalPoints, level, userId]
       );
     } else {
-      // Create new loyalty entry if not exists
+      // Create new loyalty entry if not exists (FIXED: Now using correct dynamic level)
       await pool.query(
-        "INSERT INTO loyalty (user_id, points, level, updated_at) VALUES ($1, $2, 'Bronze', NOW())",
-        [userId, totalPoints]
+        "INSERT INTO loyalty (user_id, points, level, updated_at) VALUES ($1, $2, $3, NOW())",
+        [userId, totalPoints, level]
       );
     }
   } catch (error) {
@@ -53,21 +53,28 @@ async function updateLoyaltyPoints(userId) {
   }
 }
 
-
 // Reset points when the user goes back to normal behavior
 async function resetLoyaltyPoints(userId) {
   try {
     // Reset points for the user, they can start earning points again
-    await pool.query("UPDATE loyalty SET points = 0, level = 'Bronze', updated_at = NOW() WHERE user_id = $1", [userId]);
+    await pool.query(
+      "UPDATE loyalty SET points = 0, level = 'Bronze', updated_at = NOW() WHERE user_id = $1",
+      [userId]
+    );
   } catch (error) {
     console.error("Error resetting loyalty points:", error.message);
     throw new Error("Failed to reset loyalty points");
   }
 }
-router.get("/loyalty/:userId", async (req, res) => {
+
+// Fetch loyalty level
+router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const result = await pool.query("SELECT level FROM loyalty WHERE user_id = $1", [userId]);
+    const result = await pool.query(
+      "SELECT level FROM loyalty WHERE user_id = $1",
+      [userId]
+    );
     if (result.rows.length > 0) {
       res.json(result.rows[0]);
     } else {

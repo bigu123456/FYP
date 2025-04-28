@@ -3,6 +3,7 @@ const crypto = require('crypto');
 
 const Store = {}; // { [email]: { otp: '123456', expiresAt: Date } }
 
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -26,12 +27,24 @@ const sendOTPEmail = async (email, otp) => {
 const sendOTP = async (req, res) => {
   const { email } = req.body;
   try {
-    const otp = generateOTP();
-    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+    const userRecord = Store[email];
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
 
+    // If user has last verified and it's within 7 days -> no OTP needed
+    if (userRecord?.lastVerifiedAt) {
+      const timeSinceLastVerify = Date.now() - userRecord.lastVerifiedAt;
+      if (timeSinceLastVerify < sevenDaysInMs) {
+        return res.status(200).json({ message: 'No OTP needed', success: true, otpRequired: false });
+      }
+    }
+
+    // Otherwise, generate and send OTP
+    const otp = generateOTP();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes OTP expiry
     Store[email] = { otp, expiresAt };
     await sendOTPEmail(email, otp);
-    res.status(200).json({ message: 'OTP sent successfully', success: true });
+
+    res.status(200).json({ message: 'OTP sent successfully', success: true, otpRequired: true });
   } catch (error) {
     console.error('Error generating OTP:', error);
     res.status(500).json({ message: 'Server error', success: false });
@@ -42,13 +55,13 @@ const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
   const stored = Store[email];
 
-  if (!stored || Date.now() > stored.expiresAt) {
+  if (!stored || !stored.otp || Date.now() > stored.expiresAt) {
     return res.status(400).json({ success: false, message: 'OTP expired or invalid' });
   }
 
   if (stored.otp === otp) {
-    Store[email] = null;
-    return res.status(200).json({ success: true });
+    Store[email] = { lastVerifiedAt: Date.now() }; // Save last verified time
+    return res.status(200).json({ success: true, message: 'OTP verified' });
   }
 
   res.status(400).json({ success: false, message: 'Invalid OTP' });
@@ -82,10 +95,22 @@ const sendConfirmation = async (to, orderDetails) => {
         <h3>Driver Details</h3>
         <p><strong>Name:</strong> ${driver_name}</p>
         <p><strong>License:</strong> ${driver_license}</p>
-      ` : `<h3>Driver:</h3><p><em>No driver selected (self-drive).</em></p>`}
+        <p><strong>License:</strong> ${driver_email}</p>
+        <p><strong>License:</strong> ${driver_phone}</p>
+
+      ` : `<h3>Driver:</h3>
+<p><em>No driver selected (self-drive).</em></p>
+<p><strong>Note:</strong> As you have opted for a self-drive option,
+ please provide your valid driving license details for verification through email(bigyanacharya905@gmail.com) 
+ Our team will review and confirm your eligibility before finalizing your booking.</p>
+`}
 
       <br/>
-      <p>Thank you for booking with us. We hope you have a great trip!</p>
+<p className="text-center text-gray-700 text-sm mt-6">
+  Thank you for choosing our vehicle rental service! 🚗✨ We are committed to providing you with a smooth, safe, and memorable travel experience. 
+  Whether you're heading out for business or adventure, our reliable vehicles and professional drivers are here to make your journey comfortable and stress-free. 
+  We sincerely appreciate your trust in us and look forward to serving you again in the future. Have a fantastic trip ahead!
+</p>
     `
   };
 
@@ -126,8 +151,12 @@ const sendDriverNotification = async (driverEmail, orderDetails, userDetails) =>
       <p><strong>Name:</strong> ${userDetails?.name || 'N/A'}</p>
       <p><strong>Email:</strong> ${userDetails?.email || 'N/A'}</p>
 
-      <p>Please ensure you're on time and contact the user if needed. Thank you!</p>
-    `
+We are excited to inform you that you have been assigned to a new trip booked through 
+[Your Company Name]. Thank you for being a valued partner in helping us deliver reliable
+ and comfortable travel experiences to our customers. Please ensure you maintain professionalism,
+  punctuality, and provide the best possible service during this trip. Your efforts are crucial to
+   maintaining our reputation and customer satisfaction. Should you have any questions or need assistance,
+    feel free to reach out to our support team at [9810205962]. We appreciate your hard work and dedication!    `
   };
 
   try {

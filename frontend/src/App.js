@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
 import Home from "./elements/Home";
 import LoginPage from "./elements/LoginPage";
 import RegisterPage from "./elements/Register";
@@ -64,6 +65,8 @@ const App = () => {
           <Route path ="/LoyaltyDashboard"element={<LoyaltyDashboard/>} />
          
           <Route path="RequestForm"element={<RequestForm/>} />
+         
+        
 
 
         
@@ -87,6 +90,9 @@ const App = () => {
 
         </Route>
       </Routes>
+      {/* 🔥 Toast Container should be placed here! */}
+      <ToastContainer />
+    
     </Router>
   );
 };
