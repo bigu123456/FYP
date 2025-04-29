@@ -6,12 +6,11 @@ import axios from 'axios';
 const initiatePayment = async (req, res) => {
   const {
     amount,
-    productId,
+    userId, 
     paymentGateway,
-    customerName,
-    customerEmail,
-    customerPhone,
     productName,
+    productId,
+    vechileModel
   } = req.body;
 
   if (!paymentGateway) {
@@ -45,7 +44,7 @@ const initiatePayment = async (req, res) => {
       paymentConfig.url = process.env.KHALTI_PAYMENT_URL;
       paymentConfig.data = {
         amount: amount * 100,
-        mobile: customerPhone,
+        mobile: 9810205962,
         product_identity: productId,
         product_name: productName,
         return_url: process.env.SUCCESS_URL,
@@ -72,27 +71,27 @@ const initiatePayment = async (req, res) => {
     const paymentUrl = paymentConfig.responseHandler(payment);
     if (!paymentUrl) throw new Error('Payment URL is missing in the response');
 
-    // Insert transaction into PostgreSQL
+    // Insert transaction into PostgreSQL'
+    // userId = foregin key which belong to user table 
     const insertQuery = `
-      INSERT INTO transactions (
-        customer_name,
-        customer_email,
-        customer_phone,
-        product_name,
-        product_id,
-        amount,
-        payment_gateway,
-        status
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-      RETURNING *;
-    `;
+    INSERT INTO transactions (
+      userid,
+      product_name,
+      product_id,
+      vechilemodel,
+      amount,
+      payment_gateway,
+      status
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    RETURNING *;
+  `;
+  
     const values = [
-      customerName,
-      customerEmail,
-      customerPhone,
+      userId,
       productName,
       productId,
+      vechileModel,
       amount,
       paymentGateway,
       'PENDING',

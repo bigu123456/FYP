@@ -8,7 +8,7 @@ const OrderHistory = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/orders") // Fetch all orders
+      .get("http://localhost:5000/api/orders")
       .then((res) => {
         setOrders(res.data.orders || []);
       })
@@ -18,13 +18,13 @@ const OrderHistory = () => {
   }, []);
 
   const handleDeleteOrder = async (orderId) => {
-    const confirm = window.confirm("Are you sure you want to delete this order?");
-    if (!confirm) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmDelete) return;
 
     try {
       const response = await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
       if (response.data.success) {
-        setOrders((prev) => prev.filter((order) => order.order_id !== orderId));
+        setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== orderId));
       }
     } catch (err) {
       console.error("Failed to delete order:", err);
@@ -46,13 +46,21 @@ const OrderHistory = () => {
               ) : (
                 orders.map((order) => (
                   <div key={order.order_id} className="bg-white shadow-md rounded-xl p-6">
-                    {/* Order & User Info */}
-                    <div className="mb-4">
-                      <h2 className="text-xl font-semibold text-blue-700">Order ID: {order.order_id}</h2>
-                      <p className="text-gray-600"><strong>User ID:</strong> {order.user_id}</p>
+                    {/* Order Info */}
+                    <div className="mb-4 flex justify-between items-center">
+                      <div>
+                        <h2 className="text-xl font-semibold text-blue-700">Order ID: {order.order_id}</h2>
+                        <p className="text-gray-600"><strong>User ID:</strong> {order.user_id}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteOrder(order.order_id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-3 gap-6">
                       {/* Vehicle Info */}
                       <div>
                         <h3 className="font-semibold text-lg mb-2">Vehicle</h3>
@@ -71,46 +79,38 @@ const OrderHistory = () => {
                       </div>
 
                       {/* Driver Info */}
-                      {order.driver_name && (
-                        <div>
-                          <h3 className="font-semibold text-lg mb-2">Driver</h3>
-                          {order.driver_image && (
-                            <img
-                              src={`http://localhost:5000/uploads/${order.driver_image}`}
-                              alt={order.driver_name}
-                              className="h-40 w-full object-cover rounded mb-2"
-                            />
-                          )}
-                          <p><strong>Name:</strong> {order.driver_name}</p>
-                          <p><strong>Phone:</strong> {order.driver_phone}</p>
-                          <p><strong>License:</strong> {order.driver_license}</p>
-                          <p><strong>Driver ID:</strong> {order.driver_id}</p>
-                        </div>
-                      )}
-
-                      {/* Booking Info */}
                       <div>
-                        <h3 className="font-semibold text-lg mb-2">Booking Info</h3>
-                        <p><strong>Pickup:</strong> {order.pickup_location}</p>
-                        <p><strong>Dropoff:</strong> {order.dropoff_location}</p>
-                        <p><strong>Pickup Time:</strong> {new Date(order.pickup_time).toLocaleString()}</p>
-                        <p><strong>Dropoff Time:</strong> {new Date(order.dropoff_time).toLocaleString()}</p>
+                        <h3 className="font-semibold text-lg mb-2">Driver</h3>
+                        {order.driver_image && (
+                          <img
+                            src={`http://localhost:5000/uploads/${order.driver_image}`}
+                            alt={order.driver_name}
+                            className="h-40 w-full object-cover rounded mb-2"
+                          />
+                        )}
+                        {order.driver_name ? (
+                          <>
+                            <p><strong>Name:</strong> {order.driver_name}</p>
+                            <p><strong>Phone:</strong> {order.driver_phone}</p>
+                            <p><strong>License:</strong> {order.driver_license}</p>
+                            <p><strong>Driver ID:</strong> {order.driver_id}</p>
+                          </>
+                        ) : (
+                          <p className="text-gray-500">No driver assigned</p>
+                        )}
+                      </div>
 
-                        {/* Discount Section */}
-                        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                          <h4 className="font-semibold text-md mb-2">Payment Summary</h4>
-                          <p><strong>Original Price:</strong> ₹{order.original_price}</p>
-                          <p><strong>Discount Applied:</strong> {order.discount_applied}%</p>
-                          <p><strong>You Saved:</strong> ₹{order.discount_amount}</p>
-                          <p><strong>Final Price:</strong> ₹{order.rental_price}</p>
-                        </div>
-
-                        <button
-                          onClick={() => handleDeleteOrder(order.order_id)}
-                          className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-                        >
-                          Delete Order
-                        </button>
+                      {/* Pickup & Pricing Info */}
+                      <div>
+                        <h3 className="font-semibold text-lg mb-2">Booking Details</h3>
+                        <p><strong>Pickup:</strong> {new Date(order.pickup_time).toLocaleString()}</p>
+                        <p><strong>Dropoff:</strong> {new Date(order.dropoff_time).toLocaleString()}</p>
+                        <p><strong>Pickup Location:</strong> {order.pickup_location}</p>
+                        <p><strong>Dropoff Location:</strong> {order.dropoff_location}</p>
+                        <p className="mt-2"><strong>Original Price:</strong> ${order.original_price}</p>
+                        <p><strong>Discounted Price:</strong> ${order.rental_price}</p>
+                        <p><strong>Discount Applied:</strong> {order.discount_applied || 0}%</p>
+                        <p><strong>Discount Amount:</strong> ${order.discount_amount || 0}</p>
                       </div>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 function generateUniqueId() {
-  return `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `txn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 function generateHmacSha256Hash(data, secret) {
@@ -9,7 +9,6 @@ function generateHmacSha256Hash(data, secret) {
     throw new Error("Both data and secret are required to generate a hash.");
   }
 
-  // Create HMAC SHA256 hash and encode it in Base64
   const hash = crypto
     .createHmac("sha256", secret)
     .update(data)
@@ -20,5 +19,5 @@ function generateHmacSha256Hash(data, secret) {
 
 module.exports = {
   generateUniqueId,
-  generateHmacSha256Hash
+  generateHmacSha256Hash,
 };
