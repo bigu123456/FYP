@@ -36,6 +36,7 @@ import PaymentComponent from "./components/PaymentForm";
 import Success from "./components/Success";
 import Failure from "./components/Failure";
 import UserRequestList from "./Adminpage/Userrequest";
+import Payments from "./Adminpage/Payments";
 const App = () => {
   return (
     <Router>
@@ -66,6 +67,7 @@ const App = () => {
          
           <Route path="RequestForm"element={<RequestForm/>} />
          
+         
         
 
 
@@ -84,6 +86,7 @@ const App = () => {
           <Route path="Booking" element={<Booking/>}/>
           <Route path="/vehicle-details/:id" element={<VehicleDetailsPage />} />
           <Route path="/admin/userrequest" element={<UserRequestList />} />
+          <Route path ="payments" element={<Payments/>}/>
 
 
          

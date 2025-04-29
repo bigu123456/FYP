@@ -74,7 +74,6 @@ router.delete("/vehicles/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Update a vehicle (with optional image)
 router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
   const { id } = req.params;
   const {
@@ -85,13 +84,23 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
     fuel_type,
     rental_price,
     description,
+    availability,
   } = req.body;
 
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
-    // Build the base query dynamically depending on image presence
-    const fields = [brand, model, category, type, fuel_type, rental_price, description];
+    const fields = [
+      brand,
+      model,
+      category,
+      type,
+      fuel_type,
+      rental_price,
+      description,
+      availability === "false" ? false : true, // ensure boolean
+    ];
+
     let query = `
       UPDATE vehicles SET
         brand = $1,
@@ -100,14 +109,15 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
         type = $4,
         fuel_type = $5,
         rental_price = $6,
-        description = $7`;
+        description = $7,
+        availability = $8`;
 
     if (imageUrl) {
-      fields.push(imageUrl, id); // index 8, 9
-      query += `, image_url = $8 WHERE id = $9 RETURNING *`;
+      fields.push(imageUrl, id); // index 9, 10
+      query += `, image_url = $9 WHERE id = $10 RETURNING *`;
     } else {
-      fields.push(id); // index 8
-      query += ` WHERE id = $8 RETURNING *`;
+      fields.push(id); // index 9
+      query += ` WHERE id = $9 RETURNING *`;
     }
 
     const result = await pool.query(query, fields);

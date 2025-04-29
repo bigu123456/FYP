@@ -30,7 +30,9 @@ const Vehicles = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredVehicles = vehicles.filter((vehicle) =>
+  const filteredVehicles = vehicles
+  .filter((vehicle) => vehicle.availability) // Only available vehicles
+  .filter((vehicle) =>
     vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
     vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
     vehicle.category.toLowerCase().includes(searchTerm.toLowerCase()) ||

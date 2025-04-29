@@ -63,6 +63,7 @@ router.post("/orders", async (req, res) => {
     const result = await pool.query(`
       INSERT INTO orders (
         vehicle_id, user_id, driver_id,
+        vehicle_price, driver_price,
         original_price, rental_price,
         pickup_location, dropoff_location, pickup_time, dropoff_time,
         vehicle_brand, vehicle_model, vehicle_category, vehicle_fuel_type, vehicle_image,
@@ -72,9 +73,10 @@ router.post("/orders", async (req, res) => {
       VALUES (
         $1, $2, $3,
         $4, $5,
-        $6, $7, $8, $9,
-        $10, $11, $12, $13, $14,
-        $15, $16, $17, $18,
+        $6, $7,
+        $8, $9, $10, $11,
+        $12, $13, $14, $15, $16,
+        $17, $18, $19, $20,
         NOW()
       )
       RETURNING *;
@@ -82,7 +84,9 @@ router.post("/orders", async (req, res) => {
       vehicle_id,
       user_id,
       driver_id || null,
-      rental_price, // original price
+      vehicle.price,
+      driver.price || 0,
+      rental_price,
       discountedPrice,
       pickup_location,
       dropoff_location,
@@ -171,6 +175,7 @@ router.get("/orders/user/:userId", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 // GET ALL ORDERS (including vehicle and driver details + discount info + all relevant IDs)
 router.get("/orders", async (req, res) => {
   try {
@@ -187,21 +192,15 @@ router.get("/orders", async (req, res) => {
         o.original_price,
         o.rental_price,
         o.created_at,
-       
-       
-       
-        
         d.name AS driver_name,
         d.phone AS driver_phone,
         d.license_number AS driver_license,
         d.image AS driver_image,
-        
         v.brand AS vehicle_brand,
         v.model AS vehicle_model,
         v.category AS vehicle_category,
         v.fuel_type AS vehicle_fuel_type,
         v.image_url AS vehicle_image,
-
         ROUND(((o.original_price - o.rental_price) / o.original_price) * 100, 2) AS discount_applied,
         ROUND((o.original_price - o.rental_price), 2) AS discount_amount
       FROM orders o
@@ -216,7 +215,6 @@ router.get("/orders", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 
 // DELETE A SPECIFIC ORDER BY ID
 router.delete("/orders/:orderId", async (req, res) => {

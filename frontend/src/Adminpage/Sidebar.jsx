@@ -1,44 +1,16 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Users, Car, UserCheck, Calendar, UserPlus } from "lucide-react";
+import { LayoutDashboard, Users, Car, UserCheck, Calendar, UserPlus, CreditCard } from "lucide-react";
 import { useEffect } from "react";
-import { io } from "socket.io-client";
 
-// Notification sound
-const notificationSound = new Audio('/sounds/notification.mp3');
 
-// Socket connection 
-const socket = io('http://localhost:5000'); 
+
+
+
 
 const Sidebar = () => {
-  useEffect(() => {
-    // Request permission for browser notifications
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
+  
 
-    // Listen for newBooking event
-    socket.on('newBooking', (data) => {
-      console.log('New booking received in Sidebar!', data);
-
-      // Play notification sound
-      notificationSound.play().catch(error => {
-        console.error("Audio play error:", error);
-      });
-
-      // Show browser notification
-      if (Notification.permission === "granted") {
-        new Notification("🚗 New Booking!", {
-          body: `User ${data.userName || "Someone"} just booked a vehicle.`,
-          icon: "/icons/booking-icon.png", // Optional: set your icon here
-        });
-      }
-    });
-
-    // Clean up the socket listener on unmount
-    return () => {
-      socket.off('newBooking');
-    };
-  }, []);
+   
 
   return (
     <div className="fixed top-0 left-0 w-64 min-h-screen bg-orange-600 text-white p-5 z-10">
@@ -108,6 +80,15 @@ const Sidebar = () => {
             className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
           >
             <UserPlus size={20} /> <span>User Requests</span>
+          </Link>
+        </li>
+        {/* Add the Payment Link */}
+        <li className="py-2">
+          <Link
+            to="/admin/payment"
+            className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
+          >
+            <CreditCard size={20} /> <span>Payment</span>
           </Link>
         </li>
       </ul>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar"; // Import Sidebar
-import Header from "./Header"; // Import Header
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
@@ -14,6 +14,7 @@ const Vehicles = () => {
     fuel_type: "",
     rental_price: "",
     description: "",
+    availability: true,
     image: null,
   });
 
@@ -61,7 +62,8 @@ const Vehicles = () => {
       fuel_type: vehicle.fuel_type,
       rental_price: vehicle.rental_price,
       description: vehicle.description,
-      image: null, // Keep current image unless changed
+      availability: vehicle.availability,
+      image: null,
     });
   };
 
@@ -69,6 +71,8 @@ const Vehicles = () => {
     const { name, value, files } = e.target;
     if (name === "image") {
       setEditForm((prev) => ({ ...prev, image: files[0] }));
+    } else if (name === "availability") {
+      setEditForm((prev) => ({ ...prev, availability: value === "true" }));
     } else {
       setEditForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -103,15 +107,9 @@ const Vehicles = () => {
 
   return (
     <div className="flex">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 p-5 ml-64"> {/* Added margin-left to push content away from the sidebar */}
-        <Header /> {/* Add Header component */}
-
-        
-
+      <div className="flex-1 p-5 ml-64">
+        <Header />
         <h2 className="text-xl font-bold mb-4">Vehicle List</h2>
 
         {vehicles.length === 0 ? (
@@ -158,7 +156,6 @@ const Vehicles = () => {
                     Delete
                   </button>
                 </div>
-
               </div>
             ))}
           </div>
@@ -184,6 +181,18 @@ const Vehicles = () => {
                   required={field !== "description"}
                 />
               ))}
+
+              {/* Availability Dropdown */}
+              <select
+                name="availability"
+                value={editForm.availability ? "true" : "false"}
+                onChange={handleEditChange}
+                className="w-full p-2 border rounded"
+              >
+                <option value="true">Available</option>
+                <option value="false">Unavailable</option>
+              </select>
+
               <input
                 type="file"
                 name="image"

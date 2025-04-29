@@ -16,6 +16,9 @@ const profileRoutes = require('./Routes/profile'); // or './Routes/user'
 const sheduler=require("./Routes/scheduler"); 
 const { loyaltyRouter } = require("./Routes/loyalty");
 const vehicleRequestsRoute = require("./Routes/vehicleRequests");
+const transactionRoutes = require('./Routes/transactionRoutes');
+
+const Routes = require("twilio/lib/rest/Routes");
 
 
 
@@ -45,6 +48,9 @@ app.use("/api", userRoutes);  // Register the users route
 app.use('/api', profileRoutes);
 app.use("/api/loyalty", loyaltyRouter); //
 app.use('/api/vehicle-requests', vehicleRequestsRoute);
+// Define the route for fetching transactions
+app.use('/api', transactionRoutes); 
+
 
 
 // Admin-only route example

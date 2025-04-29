@@ -78,10 +78,10 @@ const OrderHistory = () => {
                     {/* Discount Section */}
                     <div className="mt-4 p-4 bg-gray-100 rounded-lg">
                       <h4 className="font-semibold text-md mb-2">Payment Summary</h4>
-                      <p><strong>Original Price:</strong> ₹{order.original_price}</p>
+                      <p><strong>Final Price:</strong> ₹{order.original_price}</p>
                       <p><strong>Discount Applied:</strong> {order.discount_applied}%</p>
                       <p><strong>You Saved:</strong> ₹{order.discount_amount}</p>
-                      <p><strong>Final Price:</strong> ₹{order.rental_price}</p>
+                      <p><strong>Orginal Price:</strong> ₹{order.rental_price}</p>
                     </div>
 
                     

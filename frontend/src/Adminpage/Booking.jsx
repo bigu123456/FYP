@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { toast } from "react-toastify";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -14,6 +15,7 @@ const OrderHistory = () => {
       })
       .catch((err) => {
         console.error("Error fetching order history:", err);
+        toast.error("Failed to fetch orders.");
       });
   }, []);
 
@@ -25,10 +27,11 @@ const OrderHistory = () => {
       const response = await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
       if (response.data.success) {
         setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== orderId));
+        toast.success("Order deleted successfully!",{ autoClose: 2000 });
       }
     } catch (err) {
       console.error("Failed to delete order:", err);
-      alert("Something went wrong while deleting the order.");
+      toast.error("Something went wrong while deleting the order.",{ autoClose: 2000 });
     }
   };
 
