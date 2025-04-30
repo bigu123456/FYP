@@ -10,7 +10,8 @@ const initiatePayment = async (req, res) => {
     paymentGateway,
     productName,
     productId,
-    vechileModel
+    vehiclemodel,
+    vehiclebrand
   } = req.body;
 
   if (!paymentGateway) {
@@ -78,7 +79,7 @@ const initiatePayment = async (req, res) => {
       userid,
       product_name,
       product_id,
-      vechilemodel,
+      vehiclemodel,
       amount,
       payment_gateway,
       status
@@ -92,6 +93,7 @@ const initiatePayment = async (req, res) => {
       productName,
       productId,
       vechileModel,
+      vehiclebrand,
       amount,
       paymentGateway,
       'PENDING',

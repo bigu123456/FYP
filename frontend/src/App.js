@@ -37,6 +37,7 @@ import Success from "./components/Success";
 import Failure from "./components/Failure";
 import UserRequestList from "./Adminpage/Userrequest";
 import Payments from "./Adminpage/Payments";
+import Usevehicles from "./Adminpage/usevehicles";
 const App = () => {
   return (
     <Router>
@@ -87,6 +88,7 @@ const App = () => {
           <Route path="/vehicle-details/:id" element={<VehicleDetailsPage />} />
           <Route path="/admin/userrequest" element={<UserRequestList />} />
           <Route path ="payments" element={<Payments/>}/>
+          <Route path="usevehicles" element={<Usevehicles/>} />
 
 
          

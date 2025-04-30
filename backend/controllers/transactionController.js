@@ -1,6 +1,5 @@
 const pool = require("../db/Connection");
 
-// Controller to fetch all transactions
 const getAllTransactions = async (req, res) => {
   try {
     const query = `
@@ -9,19 +8,23 @@ const getAllTransactions = async (req, res) => {
         transactions.userid,
         transactions.product_name,
         transactions.product_id,
-        transactions.vechilemodel,
+        transactions.vehiclemodel,
         transactions.amount,
         transactions.payment_gateway,
         transactions.status,
         transactions.created_at,
         transactions.updated_at,
-        users.name AS user_name,  -- Correct column for name
-        users.contact_number AS user_contact_number  -- Correct column for contact number
+        users.name AS user_name, 
+        users.contact_number AS user_contact_number  
       FROM transactions
       JOIN users ON transactions.userid = users.id
     `;
     
     const { rows: transactions } = await pool.query(query);
+
+    // Debugging: Log the transactions to ensure vehiclemodel is populated
+    console.log(transactions);
+
     res.json(transactions); // Send the transaction data as a response
   } catch (error) {
     console.error('Error fetching transactions:', error);

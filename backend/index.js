@@ -50,6 +50,7 @@ app.use("/api/loyalty", loyaltyRouter); //
 app.use('/api/vehicle-requests', vehicleRequestsRoute);
 // Define the route for fetching transactions
 app.use('/api', transactionRoutes); 
+app.get('/vehicles/usage');
 
 
 

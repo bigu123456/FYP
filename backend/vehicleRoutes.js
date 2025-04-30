@@ -133,5 +133,32 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
   }
 });
 
+// Your route handler
+router.get("/vehicles/usage", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT v.id, 
+       v.model, 
+       v.brand, 
+       COUNT(o.order_id) AS bookings,
+       CASE 
+           WHEN COUNT(o.order_id) >= 10 THEN 'Unavailable'
+           WHEN COUNT(o.order_id) = 0 THEN 'Available'
+           ELSE 'Available'  -- Default for bookings less than 10
+       END AS status
+FROM vehicles v
+LEFT JOIN orders o ON v.id = o.vehicle_id
+GROUP BY v.id;
+
+
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching vehicle usage:", err);
+    res.status(500).json({ error: "Error fetching vehicle usage data" });
+  }
+});
+
+
 
 module.exports = router;

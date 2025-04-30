@@ -85,7 +85,7 @@ const Sidebar = () => {
         {/* Add the Payment Link */}
         <li className="py-2">
           <Link
-            to="/admin/payment"
+            to="/payments"
             className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
           >
             <CreditCard size={20} /> <span>Payment</span>
