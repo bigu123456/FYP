@@ -179,10 +179,10 @@ const OrderPage = () => {
       userId: userId || userInfo.id,
       paymentGateway: "esewa",
       productName: vehicle.brand,
-      vechileModel: vehicle.model,
+      vehiclemodel: vehicle.model, 
       productId,
     };
-  
+    
     try {
       const orderResponse = await axios.post("http://localhost:5000/api/orders", orderData);
   

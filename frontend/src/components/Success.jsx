@@ -112,10 +112,11 @@ const Success = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/OrderHistory")}
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
           >
-            Go to Homepage
+            thnak you for paymnet:
+             GO to Order page
           </button>
         </div>
       </div>
@@ -166,10 +167,11 @@ const Success = () => {
         </div>
 
         <button
-          onClick={() => navigate("/")}
+       onClick={() => navigate("/OrderHistory")}
           className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
         >
-          Go to Homepage
+           thank u!
+           here is your order page
         </button>
       </div>
     </div>

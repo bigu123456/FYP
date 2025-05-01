@@ -11,8 +11,9 @@ const initiatePayment = async (req, res) => {
     productName,
     productId,
     vehiclemodel,
-    vehiclebrand
+   
   } = req.body;
+  
 
   if (!paymentGateway) {
     return res.status(400).json({ message: 'Payment gateway is required' });
@@ -92,8 +93,8 @@ const initiatePayment = async (req, res) => {
       userId,
       productName,
       productId,
-      vechileModel,
-      vehiclebrand,
+      
+      vehiclemodel,
       amount,
       paymentGateway,
       'PENDING',

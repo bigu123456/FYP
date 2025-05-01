@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
-import bus from "../images/bus.png";
+
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -46,7 +46,7 @@ const Vehicles = () => {
 
       <div
         className="min-h-screen bg-cover bg-center p-5 relative"
-        style={{ backgroundImage: `url(${bus})` }}
+
       >
         <button
           onClick={() => navigate(-1)}

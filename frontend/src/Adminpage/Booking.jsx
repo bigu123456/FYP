@@ -111,7 +111,7 @@ const OrderHistory = () => {
                         <p><strong>Pickup Location:</strong> {order.pickup_location}</p>
                         <p><strong>Dropoff Location:</strong> {order.dropoff_location}</p>
                         <p className="mt-2"><strong>Original Price:</strong> ${order.original_price}</p>
-                        <p><strong>Discounted Price:</strong> ${order.rental_price}</p>
+                        <p><strong>Final Price:</strong> ${order.rental_price}</p>
                         <p><strong>Discount Applied:</strong> {order.discount_applied || 0}%</p>
                         <p><strong>Discount Amount:</strong> ${order.discount_amount || 0}</p>
                       </div>

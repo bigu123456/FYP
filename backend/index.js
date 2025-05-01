@@ -19,7 +19,7 @@ const vehicleRequestsRoute = require("./Routes/vehicleRequests");
 const transactionRoutes = require('./Routes/transactionRoutes');
 
 const Routes = require("twilio/lib/rest/Routes");
-
+const bigu =require("./Routes/bigu");
 
 
 
@@ -51,6 +51,7 @@ app.use('/api/vehicle-requests', vehicleRequestsRoute);
 // Define the route for fetching transactions
 app.use('/api', transactionRoutes); 
 app.get('/vehicles/usage');
+app.use("/api", bigu);
 
 
 

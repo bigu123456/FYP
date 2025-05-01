@@ -18,6 +18,7 @@ import OrderHistory from "./elements/OrderHistory"; // or the correct path if di
 import UserProfile from "./elements/UserProfile";
 import LoyaltyDashboard from "./elements/LoyaltyDashboard";
 import RequestForm from "./elements/RequestForm"
+import Test from "./elements/Test";
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -67,6 +68,7 @@ const App = () => {
           <Route path ="/LoyaltyDashboard"element={<LoyaltyDashboard/>} />
          
           <Route path="RequestForm"element={<RequestForm/>} />
+          <Route path="Test"element={<Test/>}/>
          
          
         
