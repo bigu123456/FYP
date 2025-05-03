@@ -1,17 +1,16 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Users, Car, UserCheck, Calendar, UserPlus, CreditCard } from "lucide-react";
-import { useEffect } from "react";
-
-
-
-
-
+import {
+  LayoutDashboard,
+  Users,
+  Car,
+  UserCheck,
+  Calendar,
+  UserPlus,
+  CreditCard,
+  MessageCircle,
+} from "lucide-react";
 
 const Sidebar = () => {
-  
-
-   
-
   return (
     <div className="fixed top-0 left-0 w-64 min-h-screen bg-orange-600 text-white p-5 z-10">
       <h2 className="text-xl font-bold flex items-center gap-2">
@@ -82,13 +81,20 @@ const Sidebar = () => {
             <UserPlus size={20} /> <span>User Requests</span>
           </Link>
         </li>
-        {/* Add the Payment Link */}
         <li className="py-2">
           <Link
             to="/payments"
             className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
           >
             <CreditCard size={20} /> <span>Payment</span>
+          </Link>
+        </li>
+        <li className="py-2">
+          <Link
+            to="/admin/feedback"
+            className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
+          >
+            <MessageCircle size={20} /> <span>Feedback</span>
           </Link>
         </li>
       </ul>

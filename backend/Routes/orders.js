@@ -46,6 +46,7 @@ router.post("/orders", async (req, res) => {
     else if (loyaltyLevel === "Platinum") discountPercent = 15;
 
     const discountedPrice = parseFloat((rental_price - (rental_price * discountPercent / 100)).toFixed(2));
+   
 
     // Insert order into database
     const result = await pool.query(`
@@ -92,6 +93,7 @@ router.post("/orders", async (req, res) => {
     ]);
 
     const createdOrder = result.rows[0];
+    console.log('Inserting orderId:', createdOrder.order_id);
 
     // Mark the vehicle as unavailable after the first booking
     await pool.query(`
@@ -102,7 +104,8 @@ router.post("/orders", async (req, res) => {
 
     // Update loyalty points
     await updateLoyaltyPoints(user_id, rental_price, pickup_time, dropoff_time);
-
+     console.log('Inserting orderId:', createdOrder.order_id);
+     
     // Send confirmation email to user
     await sendConfirmation(user.email, {
       vehicle_brand: vehicle.brand,

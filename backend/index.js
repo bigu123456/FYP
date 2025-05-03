@@ -56,6 +56,9 @@ app.get('/vehicles/usage');
 app.use("/api", bigu);
 app.use("/api/feedback", feedbackRoutes);
 
+app.use('/api/admin', feedbackRoutes);
+
+
 
 // Admin-only route example
 app.use("/api/admin", verifyToken, isAdmin, (req, res) => {
