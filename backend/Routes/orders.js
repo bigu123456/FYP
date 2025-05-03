@@ -4,7 +4,6 @@ const pool = require("../db/Connection");
 const { sendConfirmation, sendDriverNotification } = require("../controllers/otpController");
 const { updateLoyaltyPoints } = require("./loyalty");
 
-// CREATE A NEW ORDER (allows up to 10 users per vehicle at the same time)
 router.post("/orders", async (req, res) => {
   try {
     const {
@@ -15,17 +14,6 @@ router.post("/orders", async (req, res) => {
     // Basic validations
     if (!vehicle_id || !user_id || !rental_price || !pickup_location || !dropoff_location || !pickup_time || !dropoff_time) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
-    }
-
-    // NEW: Allow up to 10 concurrent bookings for the same vehicle and time
-    const concurrentBookings = await pool.query(
-      `SELECT COUNT(*) FROM orders
-       WHERE vehicle_id = $1 AND NOT (dropoff_time <= $2 OR pickup_time >= $3)`,
-      [vehicle_id, pickup_time, dropoff_time]
-    );
-
-    if (parseInt(concurrentBookings.rows[0].count) >= 10) {
-      return res.status(400).json({ success: false, message: "Vehicle is fully booked for selected time." });
     }
 
     // User and Vehicle Lookup
@@ -105,6 +93,13 @@ router.post("/orders", async (req, res) => {
 
     const createdOrder = result.rows[0];
 
+    // Mark the vehicle as unavailable after the first booking
+    await pool.query(`
+      UPDATE vehicles
+      SET is_available = false
+      WHERE id = $1
+    `, [vehicle_id]);
+
     // Update loyalty points
     await updateLoyaltyPoints(user_id, rental_price, pickup_time, dropoff_time);
 
@@ -140,10 +135,12 @@ router.post("/orders", async (req, res) => {
     res.status(201).json({ success: true, order: createdOrder });
 
   } catch (error) {
-    console.error(" Error creating order:", error.message, error.stack);
+    console.error("Error creating order:", error.message, error.stack);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+
 
 // GET ALL ORDERS FOR A USER (with full vehicle & driver details + discount info)
 router.get("/orders/user/:userId", async (req, res) => {

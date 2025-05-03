@@ -32,13 +32,15 @@ router.post("/vehicles", upload.single("image"), async (req, res) => {
   }
 });
 
+// Endpoint to get all vehicles with availability
 router.get("/vehicles", async (req, res) => {
   try {
-    const vehicles = await pool.query(`
+    // Fetch vehicles from the database
+    const result = await pool.query(`
       SELECT 
         v.*, 
         CASE 
-          WHEN COUNT(o.vehicle_id) >= 10 THEN false
+          WHEN v.is_available = false THEN false
           ELSE true
         END AS availability
       FROM vehicles v
@@ -46,34 +48,26 @@ router.get("/vehicles", async (req, res) => {
       GROUP BY v.id
     `);
 
-    res.json(Array.isArray(vehicles.rows) ? vehicles.rows : []);
+    // Assign result.rows to vehicles
+    const vehicles = result.rows;  // This is where you assign the fetched rows
+
+  
+
+    // Send the vehicles data as a response
+    res.json(vehicles);  // Send the data to the frontend
   } catch (err) {
+    // Handle any errors and log them
     console.error("Error fetching vehicles:", err.message);
-    res.json([]);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 
 
-// Delete a vehicle
-router.delete("/vehicles/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const orderCheck = await pool.query("SELECT * FROM orders WHERE vehicle_id = $1", [id]);
-    if (orderCheck.rows.length > 0) {
-      return res.status(400).json({
-        message: "This vehicle cannot be deleted because it is associated with one or more orders."
-      });
-    }
-    const deleteVehicle = await pool.query("DELETE FROM vehicles WHERE id = $1 RETURNING *", [id]);
-    if (deleteVehicle.rows.length === 0) {
-      return res.status(404).json({ message: "Vehicle not found" });
-    }
-    res.json({ message: "Vehicle deleted successfully", deletedVehicle: deleteVehicle.rows[0] });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+
+
+
+// Endpoint to update a vehicle
 router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
   const { id } = req.params;
   const {
@@ -132,33 +126,6 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
-// Your route handler
-router.get("/vehicles/usage", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT v.id, 
-       v.model, 
-       v.brand, 
-       COUNT(o.order_id) AS bookings,
-       CASE 
-           WHEN COUNT(o.order_id) >= 10 THEN 'Unavailable'
-           WHEN COUNT(o.order_id) = 0 THEN 'Available'
-           ELSE 'Available'  -- Default for bookings less than 10
-       END AS status
-FROM vehicles v
-LEFT JOIN orders o ON v.id = o.vehicle_id
-GROUP BY v.id;
-
-
-    `);
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Error fetching vehicle usage:", err);
-    res.status(500).json({ error: "Error fetching vehicle usage data" });
-  }
-});
-
 
 
 module.exports = router;

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
-
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -10,17 +9,19 @@ const Vehicles = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  fetch("http://localhost:5000/api/vehicles")
-  .then((res) => {
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-    return res.json();
-  })
-  .then((data) => {
-    console.log("Fetched vehicles:", data);
-    setVehicles(data);
-  })
-  .catch((err) => console.error("Fetch error:", err));
-
+  useEffect(() => {
+    // Fetch vehicles when the component mounts
+    fetch("http://localhost:5000/api/vehicles")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Fetched vehicles:", data);
+        setVehicles(data);
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  }, []);
 
   const handleViewDetails = (vehicle) => {
     navigate(`/details/${vehicle.id}`, { state: { vehicle } });
@@ -30,9 +31,7 @@ const Vehicles = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredVehicles = vehicles
-  .filter((vehicle) => vehicle.availability) // Only available vehicles
-  .filter((vehicle) =>
+  const filteredVehicles = vehicles.filter((vehicle) =>
     vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
     vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
     vehicle.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,10 +43,7 @@ const Vehicles = () => {
     <>
       <Navbar />
 
-      <div
-        className="min-h-screen bg-cover bg-center p-5 relative"
-
-      >
+      <div className="min-h-screen bg-cover bg-center p-5 relative">
         <button
           onClick={() => navigate(-1)}
           className="mb-4 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all font-bold"
@@ -91,11 +87,11 @@ const Vehicles = () => {
                 <p><strong>Type:</strong> {vehicle.type}</p>
                 <p><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
                 <p><strong>Rental Price:</strong> ${vehicle.rental_price}</p>
-                <p><strong>Available:</strong> {vehicle.availability ? "✅" : "❌"}</p>
+                <p><strong>Available:</strong> {vehicle.is_available ? "✅" : "❌"}</p>
               </div>
 
               <div className="mt-4">
-                {vehicle.availability ? (
+                {vehicle.is_available ? (
                   <button
                     onClick={() => handleViewDetails(vehicle)}
                     className="bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-orange-500 transition-all"

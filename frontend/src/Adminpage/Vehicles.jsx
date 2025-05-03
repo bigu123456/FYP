@@ -5,6 +5,7 @@ import Header from "./Header";
 
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [editForm, setEditForm] = useState({
     brand: "",
@@ -23,7 +24,10 @@ const Vehicles = () => {
   useEffect(() => {
     fetch("http://localhost:5000/api/vehicles")
       .then((res) => res.json())
-      .then((data) => setVehicles(data))
+      .then((data) => {
+        console.log("Fetched vehicles:", data); // Debug log to check the fetched data
+        setVehicles(data);
+      })
       .catch((err) => console.error("Error fetching vehicles:", err));
   }, []);
 
@@ -105,6 +109,22 @@ const Vehicles = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Filter vehicles based on search term
+  const filteredVehicles = vehicles.filter((vehicle) =>
+    vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.fuel_type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter vehicles based on availability
+  const availableVehicles = filteredVehicles.filter((v) => v.availability);
+
   return (
     <div className="flex">
       <Sidebar />
@@ -112,11 +132,22 @@ const Vehicles = () => {
         <Header />
         <h2 className="text-xl font-bold mb-4">Vehicle List</h2>
 
-        {vehicles.length === 0 ? (
-          <p>No vehicles available.</p>
+        {/* Search Box */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search vehicles..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="p-2 w-full sm:w-64 border rounded"
+          />
+        </div>
+
+        {availableVehicles.length === 0 ? (
+          <p>No available vehicles found.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {vehicles.map((vehicle) => (
+            {availableVehicles.map((vehicle) => (
               <div
                 key={vehicle.id}
                 className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
@@ -133,7 +164,7 @@ const Vehicles = () => {
                   <p><strong>Type:</strong> {vehicle.type}</p>
                   <p><strong>Fuel:</strong> {vehicle.fuel_type}</p>
                   <p><strong>Price:</strong> ${vehicle.rental_price}</p>
-                  <p><strong>Available:</strong> {vehicle.availability ? "✅" : "❌"}</p>
+                  <p><strong>Available:</strong> ✅</p>
                 </div>
 
                 <div className="mt-4 flex gap-2">

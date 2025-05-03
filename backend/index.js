@@ -20,6 +20,8 @@ const transactionRoutes = require('./Routes/transactionRoutes');
 
 const Routes = require("twilio/lib/rest/Routes");
 const bigu =require("./Routes/bigu");
+const feedbackRoutes = require("./Routes/feedback");
+
 
 
 
@@ -52,7 +54,7 @@ app.use('/api/vehicle-requests', vehicleRequestsRoute);
 app.use('/api', transactionRoutes); 
 app.get('/vehicles/usage');
 app.use("/api", bigu);
-
+app.use("/api/feedback", feedbackRoutes);
 
 
 // Admin-only route example
