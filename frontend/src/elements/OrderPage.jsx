@@ -175,14 +175,14 @@ const OrderPage = () => {
     };
     
     const formData = {
-      amount: priceSummary.finalPrice,
-      userId: userId || userInfo.id,
-      paymentGateway: "esewa",
-      productName: vehicle.brand,
-      vehiclemodel: vehicle.model, 
-      productId,
-    };
-    
+  amount: priceSummary.finalPrice,  // Ensure this value is properly calculated
+  userId: userId || userInfo.id,  // Ensure user info is available
+  paymentGateway: 'esewa',  // Can also be 'khalti', depending on the selected gateway
+  productName: vehicle.brand,  // Vehicle brand name
+  vehicleModel: vehicle.model,  // Vehicle model
+  productId,  // Unique product ID
+};
+  
     try {
       const orderResponse = await axios.post("http://localhost:5000/api/orders", orderData);
   

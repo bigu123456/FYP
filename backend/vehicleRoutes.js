@@ -50,6 +50,7 @@ router.get("/vehicles", async (req, res) => {
 
     // Assign result.rows to vehicles
     const vehicles = result.rows;  // This is where you assign the fetched rows
+    console.log(vehicles);
 
   
 

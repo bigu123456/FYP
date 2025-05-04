@@ -4,6 +4,7 @@ const pool = require("../db/Connection");
 const { sendConfirmation, sendDriverNotification } = require("../controllers/otpController");
 const { updateLoyaltyPoints } = require("./loyalty");
 
+// CREATE A NEW ORDER
 router.post("/orders", async (req, res) => {
   try {
     const {
@@ -11,12 +12,20 @@ router.post("/orders", async (req, res) => {
       pickup_location, dropoff_location, pickup_time, dropoff_time
     } = req.body;
 
-    // Basic validations
     if (!vehicle_id || !user_id || !rental_price || !pickup_location || !dropoff_location || !pickup_time || !dropoff_time) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // User and Vehicle Lookup
+    const concurrentBookings = await pool.query(
+      `SELECT COUNT(*) FROM orders
+       WHERE vehicle_id = $1 AND NOT (dropoff_time <= $2 OR pickup_time >= $3)`,
+      [vehicle_id, pickup_time, dropoff_time]
+    );
+
+    if (parseInt(concurrentBookings.rows[0].count) >= 10) {
+      return res.status(400).json({ success: false, message: "Vehicle is fully booked for selected time." });
+    }
+
     const userCheck = await pool.query("SELECT id, email, name FROM users WHERE id = $1", [user_id]);
     if (userCheck.rows.length === 0)
       return res.status(404).json({ success: false, message: "User not found" });
@@ -36,7 +45,6 @@ router.post("/orders", async (req, res) => {
     const vehicle = vehicleQuery.rows[0];
     const user = userCheck.rows[0];
 
-    // Loyalty Discount Logic
     const loyaltyQuery = await pool.query("SELECT level FROM loyalty WHERE user_id = $1", [user_id]);
     const loyaltyLevel = loyaltyQuery.rows[0]?.level?.trim() || "Bronze";
 
@@ -46,9 +54,7 @@ router.post("/orders", async (req, res) => {
     else if (loyaltyLevel === "Platinum") discountPercent = 15;
 
     const discountedPrice = parseFloat((rental_price - (rental_price * discountPercent / 100)).toFixed(2));
-   
 
-    // Insert order into database
     const result = await pool.query(`
       INSERT INTO orders (
         vehicle_id, user_id, driver_id,
@@ -93,20 +99,16 @@ router.post("/orders", async (req, res) => {
     ]);
 
     const createdOrder = result.rows[0];
-    console.log('Inserting orderId:', createdOrder.order_id);
+    await pool.query(
+      `UPDATE vehicles
+       SET is_available = false
+       WHERE id = $1`,
+      [vehicle_id]
+    );
+    
 
-    // Mark the vehicle as unavailable after the first booking
-    await pool.query(`
-      UPDATE vehicles
-      SET is_available = false
-      WHERE id = $1
-    `, [vehicle_id]);
-
-    // Update loyalty points
     await updateLoyaltyPoints(user_id, rental_price, pickup_time, dropoff_time);
-     console.log('Inserting orderId:', createdOrder.order_id);
-     
-    // Send confirmation email to user
+
     await sendConfirmation(user.email, {
       vehicle_brand: vehicle.brand,
       vehicle_model: vehicle.model,
@@ -121,7 +123,6 @@ router.post("/orders", async (req, res) => {
       discount: discountPercent
     });
 
-    // Notify driver
     if (driver.email) {
       await sendDriverNotification(driver.email, {
         driver_name: driver.name,
@@ -138,14 +139,12 @@ router.post("/orders", async (req, res) => {
     res.status(201).json({ success: true, order: createdOrder });
 
   } catch (error) {
-    console.error("Error creating order:", error.message, error.stack);
+    console.error(" Error creating order:", error.message, error.stack);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-
-
-// GET ALL ORDERS FOR A USER (with full vehicle & driver details + discount info)
+// GET ALL ORDERS FOR A USER
 router.get("/orders/user/:userId", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -160,7 +159,12 @@ router.get("/orders/user/:userId", async (req, res) => {
         v.category AS vehicle_category,
         v.fuel_type AS vehicle_fuel_type,
         v.image_url AS vehicle_image,
-        ROUND(((o.original_price - o.rental_price) / o.original_price) * 100, 2) AS discount_applied,
+        ROUND(
+          CASE 
+            WHEN o.original_price = 0 THEN 0
+            ELSE ((o.original_price - o.rental_price) / o.original_price) * 100
+          END, 2
+        ) AS discount_applied,
         ROUND((o.original_price - o.rental_price), 2) AS discount_amount
       FROM orders o
       LEFT JOIN drivers d ON o.driver_id = d.id
@@ -176,7 +180,7 @@ router.get("/orders/user/:userId", async (req, res) => {
   }
 });
 
-// GET ALL ORDERS (including vehicle and driver details + discount info + all relevant IDs)
+// GET ALL ORDERS
 router.get("/orders", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -201,7 +205,12 @@ router.get("/orders", async (req, res) => {
         v.category AS vehicle_category,
         v.fuel_type AS vehicle_fuel_type,
         v.image_url AS vehicle_image,
-        ROUND(((o.original_price - o.rental_price) / o.original_price) * 100, 2) AS discount_applied,
+        ROUND(
+          CASE 
+            WHEN o.original_price = 0 THEN 0
+            ELSE ((o.original_price - o.rental_price) / o.original_price) * 100
+          END, 2
+        ) AS discount_applied,
         ROUND((o.original_price - o.rental_price), 2) AS discount_amount
       FROM orders o
       LEFT JOIN drivers d ON o.driver_id = d.id
@@ -216,7 +225,7 @@ router.get("/orders", async (req, res) => {
   }
 });
 
-// DELETE A SPECIFIC ORDER BY ID
+// DELETE ORDER
 router.delete("/orders/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
