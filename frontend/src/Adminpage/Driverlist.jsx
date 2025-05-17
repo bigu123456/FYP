@@ -140,7 +140,11 @@ const DriverList = () => {
                 </p>
                 {driver.created_at && (
                   <p className="text-xs mt-1 text-gray-500 hover:text-white">
+<<<<<<< HEAD
                     Added: {new Date(driver.created_at).toLocaleDateString()}
+=======
+                    🕓 Added: {new Date(driver.created_at).toLocaleDateString()}
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                   </p>
                 )}
 

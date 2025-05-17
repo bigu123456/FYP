@@ -23,7 +23,11 @@ const getAllTransactions = async (req, res) => {
     const { rows: transactions } = await pool.query(query);
 
     // Debugging: Log the transactions to ensure vehiclemodel is populated
+<<<<<<< HEAD
   
+=======
+    console.log(transactions);
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
     res.json(transactions); // Send the transaction data as a response
   } catch (error) {

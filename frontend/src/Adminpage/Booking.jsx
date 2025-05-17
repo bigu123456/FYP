@@ -19,7 +19,25 @@ const OrderHistory = () => {
       });
   }, []);
 
+<<<<<<< HEAD
  
+=======
+  const handleDeleteOrder = async (orderId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
+      if (response.data.success) {
+        setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== orderId));
+        toast.success("Order deleted successfully!",{ autoClose: 2000 });
+      }
+    } catch (err) {
+      console.error("Failed to delete order:", err);
+      toast.error("Something went wrong while deleting the order.",{ autoClose: 2000 });
+    }
+  };
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
   return (
     <div className="flex">
@@ -36,6 +54,7 @@ const OrderHistory = () => {
                 orders.map((order) => (
                   <div key={order.order_id} className="bg-white shadow-md rounded-xl p-6">
                     {/* Order Info */}
+<<<<<<< HEAD
                     <div className="mb-4 flex justify-between items-start">
                       <div>
                         <h2 className="text-xl font-semibold text-blue-700">Order ID: {order.order_id}</h2>
@@ -46,6 +65,19 @@ const OrderHistory = () => {
                         <p className="text-gray-600"><strong>Age:</strong> {order.user_age}</p>
                       </div>
                       
+=======
+                    <div className="mb-4 flex justify-between items-center">
+                      <div>
+                        <h2 className="text-xl font-semibold text-blue-700">Order ID: {order.order_id}</h2>
+                        <p className="text-gray-600"><strong>User ID:</strong> {order.user_id}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteOrder(order.order_id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6">
@@ -88,7 +120,11 @@ const OrderHistory = () => {
                         )}
                       </div>
 
+<<<<<<< HEAD
                       {/* Booking Info */}
+=======
+                      {/* Pickup & Pricing Info */}
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                       <div>
                         <h3 className="font-semibold text-lg mb-2">Booking Details</h3>
                         <p><strong>Pickup:</strong> {new Date(order.pickup_time).toLocaleString()}</p>

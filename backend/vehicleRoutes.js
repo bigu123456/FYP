@@ -50,7 +50,11 @@ router.get("/vehicles", async (req, res) => {
 
     // Assign result.rows to vehicles
     const vehicles = result.rows;  // This is where you assign the fetched rows
+<<<<<<< HEAD
    
+=======
+    console.log(vehicles);
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
   
 
@@ -127,6 +131,7 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+<<<<<<< HEAD
 // Get a specific vehicle by ID
 router.get("/vehicles/:id", async (req, res) => {
   const { id } = req.params;
@@ -161,6 +166,8 @@ router.delete("/vehicles/:id", async (req, res) => {
   }
 });
 
+=======
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
 
 module.exports = router;

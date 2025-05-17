@@ -45,7 +45,11 @@ const Navbar = () => {
             </li>
             <li className="list-none">
               <NavLink
+<<<<<<< HEAD
                 to="/ServicePage"
+=======
+                to="/service"
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                 className="text-black text-base font-medium"
                 activeClassName="text-[#F34900]"
               >

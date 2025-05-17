@@ -18,8 +18,12 @@ import OrderHistory from "./elements/OrderHistory"; // or the correct path if di
 import UserProfile from "./elements/UserProfile";
 import LoyaltyDashboard from "./elements/LoyaltyDashboard";
 import RequestForm from "./elements/RequestForm"
+<<<<<<< HEAD
 
 import ServicePage from "./components/ServicePage";
+=======
+import Test from "./elements/Test";
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -54,7 +58,11 @@ const App = () => {
         <Route path="/order/:id" element={<OrderPage />} />
         <Route path="/select-driver/:id" element={<SelectDriverPage />} />
         
+<<<<<<< HEAD
         <Route path ="ServicePage" element={<ServicePage/>} />
+=======
+        
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
         
        
         <Route path="/otp-verification" element={<OTPVerification />} />
@@ -69,7 +77,11 @@ const App = () => {
           <Route path ="/LoyaltyDashboard"element={<LoyaltyDashboard/>} />
          
           <Route path="RequestForm"element={<RequestForm/>} />
+<<<<<<< HEAD
          
+=======
+          <Route path="Test"element={<Test/>}/>
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
          
          
         

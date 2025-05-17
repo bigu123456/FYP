@@ -170,4 +170,8 @@ module.exports = {
   verifyOTP,
   sendConfirmation,
   sendDriverNotification
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522

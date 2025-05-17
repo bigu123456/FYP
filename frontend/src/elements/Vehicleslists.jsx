@@ -10,12 +10,20 @@ const Vehicles = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    // Fetch vehicles when the component mounts
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
     fetch("http://localhost:5000/api/vehicles")
       .then((res) => {
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         return res.json();
       })
       .then((data) => {
+<<<<<<< HEAD
+=======
+        console.log("Fetched vehicles:", data);
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
         setVehicles(data);
       })
       .catch((err) => console.error("Fetch error:", err));
@@ -29,6 +37,7 @@ const Vehicles = () => {
     setSearchTerm(e.target.value);
   };
 
+<<<<<<< HEAD
   const filteredVehicles = vehicles
     .filter((vehicle) => vehicle.is_available)
     .filter((vehicle) =>
@@ -38,13 +47,36 @@ const Vehicles = () => {
       vehicle.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.fuel_type.toLowerCase().includes(searchTerm.toLowerCase())
     );
+=======
+  const filteredVehicles = vehicles.filter((vehicle) =>
+    vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    vehicle.fuel_type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
   return (
     <>
       <Navbar />
 
+<<<<<<< HEAD
       <div className="min-h-screen bg-gray-100 p-5 relative">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Available Vehicles</h2>
+=======
+      <div className="min-h-screen bg-cover bg-center p-5 relative">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all font-bold"
+        >
+          Back
+        </button>
+
+        <h2 className="text-xl font-bold mb-4 text-white drop-shadow">
+          Vehicle List
+        </h2>
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
         {/* Search box */}
         <div className="absolute top-5 right-5 flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shadow-md">
@@ -71,13 +103,18 @@ const Vehicles = () => {
                 alt={vehicle.model}
                 className="w-full h-48 object-cover rounded-lg mb-4"
               />
+<<<<<<< HEAD
               <div className="space-y-2 text-gray-800 text-sm">
+=======
+              <div className="space-y-2 text-gray-800">
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                 <p><strong>Brand:</strong> {vehicle.brand}</p>
                 <p><strong>Model:</strong> {vehicle.model}</p>
                 <p><strong>Category:</strong> {vehicle.category}</p>
                 <p><strong>Type:</strong> {vehicle.type}</p>
                 <p><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
                 <p><strong>Rental Price:</strong> ${vehicle.rental_price}</p>
+<<<<<<< HEAD
               </div>
 
               <div className="mt-4">
@@ -87,6 +124,28 @@ const Vehicles = () => {
                 >
                   Details
                 </button>
+=======
+                <p><strong>Available:</strong> {vehicle.is_available ? "✅" : "❌"}</p>
+              </div>
+
+              <div className="mt-4">
+                {vehicle.is_available ? (
+                  <button
+                    onClick={() => handleViewDetails(vehicle)}
+                    className="bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-orange-500 transition-all"
+                  >
+                    Details
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg cursor-not-allowed opacity-70"
+                    title="This vehicle is fully booked"
+                  >
+                    Unavailable
+                  </button>
+                )}
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
               </div>
             </div>
           ))}

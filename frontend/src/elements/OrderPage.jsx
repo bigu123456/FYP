@@ -154,7 +154,10 @@ const OrderPage = () => {
       vehicle_id: vehicle.id,
       driver_id: selectedDriver?.id || null,
       rental_price: priceSummary.finalPrice,
+<<<<<<< HEAD
       original_price: priceSummary.originalCost, // <-- add this line
+=======
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
       pickup_location: pickupLocation,
       dropoff_location: dropoffLocation,
       pickup_time: pickupTime,
@@ -181,9 +184,13 @@ const OrderPage = () => {
   paymentGateway: 'esewa',  // Can also be 'khalti', depending on the selected gateway
   productName: vehicle.brand,  // Vehicle brand name
   vehicleModel: vehicle.model,  // Vehicle model
+<<<<<<< HEAD
   productId,
   
     // Unique product ID
+=======
+  productId,  // Unique product ID
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 };
   
     try {
@@ -250,8 +257,12 @@ const OrderPage = () => {
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between">
                   <p className="text-gray-600">Original Price:</p>
+<<<<<<< HEAD
                 <p className="font-medium">₹{!isNaN(priceSummary.originalCost) ? priceSummary.originalCost.toFixed(2) : "0.00"}</p>
 
+=======
+                  <p className="font-medium">₹{priceSummary.originalCost.toFixed(2)}</p>
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                 </div>
                 <div className="flex justify-between">
                   <p className="text-gray-600">Loyalty Discount:</p>
@@ -491,6 +502,7 @@ const OrderPage = () => {
                             <p className="font-medium">₹{(selectedDriver.price_per_day * priceSummary.duration).toFixed(2)}</p>
                           </div>
                         )}
+<<<<<<< HEAD
                         {/* Calculate original cost */}
   {(() => {
     const vehicleCost = vehicle.rental_price * priceSummary.duration;
@@ -503,6 +515,8 @@ const OrderPage = () => {
       </div>
     );
   })()}
+=======
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                         <div className="flex justify-between">
                           <p className="text-gray-600">Loyalty Level:</p>
                           <p className="font-medium text-orange-600">{loyaltyLevel}</p>
@@ -515,16 +529,23 @@ const OrderPage = () => {
                           <p className="text-gray-600">You Save:</p>
                           <p className="font-medium text-green-600">₹{priceSummary.saved.toFixed(2)}</p>
                         </div>
+<<<<<<< HEAD
                         </div>
                         
                         
+=======
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                         <div className="border-t border-gray-200 pt-2 mt-2"></div>
                         <div className="flex justify-between">
                           <p className="font-bold text-gray-800">Total:</p>
                           <p className="text-xl font-bold text-green-600">₹{priceSummary.finalPrice.toFixed(2)}</p>
                         </div>
                       </div>
+<<<<<<< HEAD
                     
+=======
+                    </div>
+>>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                   )
                 )}
                 
