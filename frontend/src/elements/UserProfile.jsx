@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { validateRegistration } from './validateRegistration';
 
-const UserProfile = ({ onClose }) => {
+// UserProfile component displays and allows editing of the user's profile details
+const UserProfile = () => {
+  // State to store user data from backend
   const [user, setUser] = useState({});
+
+  // State to store user's loyalty level
+  const [loyaltyLevel, setLoyaltyLevel] = useState('');
+
+  // Form input state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,105 +25,134 @@ const UserProfile = ({ onClose }) => {
   });
 
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem('userId'); // Retrieve user ID from localStorage
 
   useEffect(() => {
-    if (!userId) {
-      console.warn("User not logged in.");
-      return;
-    }
+    if (!userId) return;
 
-    axios.get(`http://localhost:5000/api/user/${userId}`)
-      .then(res => {
-        setUser(res.data);
+    // Fetch user details from backend
+    const fetchUserData = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/user/${userId}`);
+        const data = res.data;
+
+        setUser(data);
+
+        // Populate form with user data (excluding password fields)
         setFormData({
-          name: res.data.name || '',
-          email: res.data.email || '',
-          age: res.data.age || '',
-          city: res.data.city || '',
-          contact_number: res.data.contact_number || '',
+          name: data.name || '',
+          email: data.email || '',
+          age: data.age || '',
+          city: data.city || '',
+          contact_number: data.contact_number || '',
           password: '',
           confirmPassword: ''
         });
-      })
-      .catch(err => console.error(err));
+      } catch (err) {
+        toast.error('Failed to load user data.', { position: 'top-center' });
+      }
+    };
+
+    // Fetch loyalty level for the user
+    const fetchLoyaltyLevel = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/loyalty/${userId}`);
+        setLoyaltyLevel(res.data.level);
+      } catch (err) {
+        console.error('Failed to fetch loyalty level:', err);
+        setLoyaltyLevel('Bronze'); // Default fallback level
+      }
+    };
+
+    fetchUserData();
+    fetchLoyaltyLevel();
   }, [userId]);
 
+  // Handle form input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form fields
+    // Validate form input using existing validator
     const errors = validateRegistration({
       name: formData.name,
       email: formData.email,
-      password: formData.password ? formData.password : 'DummyPassword123',
-      confirmPassword: formData.password ? formData.confirmPassword : 'DummyPassword123',
+      password: formData.password || 'Dummy123', // Use dummy values if password not changed
+      confirmPassword: formData.password ? formData.confirmPassword : 'Dummy123',
       number: formData.contact_number,
       city: formData.city,
       age: formData.age
     });
 
     if (errors.length > 0) {
-      alert(errors.join('\n'));
+      toast.error(errors.join('\n'), { position: 'top-center' });
       return;
     }
 
-    if (isNaN(formData.age) || formData.age === '') {
-      formData.age = null;
-    }
-
-    if (formData.contact_number === '') {
-      formData.contact_number = null;
-    }
-
+    // Prepare payload for update request
     const payload = {
       name: formData.name,
       email: formData.email,
-      age: formData.age,
+      age: formData.age || null,
       city: formData.city,
-      contact_number: formData.contact_number
+      contact_number: formData.contact_number || null
     };
 
+    // Include password in payload only if it was entered
     if (formData.password) {
-      payload.password = formData.password; // Only add password if user entered it
+      payload.password = formData.password;
     }
 
     try {
+      // Send update request to backend
       const res = await axios.put(
         `http://localhost:5000/api/user/${userId}/update-profile`,
         payload
       );
 
+      // Store updated info and redirect to homepage
       localStorage.setItem('userInfo', JSON.stringify(res.data));
-      alert('Profile updated successfully!');
-      onClose();
+      toast.success('Profile updated successfully!', {
+        position: 'top-center',
+        autoClose: 2000,
+        onClose: () => navigate('/')
+      });
+
     } catch (err) {
-      console.error('Update failed:', err);
-      alert('Update failed!');
+      toast.error('Profile update failed!', { position: 'top-center' });
     }
   };
 
-  const handleClose = () => {
-    navigate('/');
-  };
-
   return (
+    // Modal-style overlay
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center overflow-auto">
+      <ToastContainer />
+
+      {/* Profile form card */}
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+        {/* Close button */}
         <button
-          onClick={handleClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
+          onClick={() => navigate('/')}
+          className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
         >
           &times;
         </button>
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+
+        {/* Profile header */}
+        <h2 className="text-2xl font-semibold mb-2 text-center">
           {user.role === 'admin' ? 'Admin Profile' : 'User Profile'}
         </h2>
 
+        {/* Loyalty level display */}
+        <p className="text-center mb-4 text-sm text-gray-700">
+          Loyalty Level: <span className="font-semibold text-orange-600">{loyaltyLevel}</span>
+        </p>
+
+        {/* Profile update form */}
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -156,10 +194,8 @@ const UserProfile = ({ onClose }) => {
             onChange={handleChange}
             className="mb-4 block w-full border px-3 py-2 rounded"
           />
-
-          {/* Password fields */}
           <input
-            type="password"
+            type="text"
             name="password"
             value={formData.password}
             placeholder="New Password (optional)"
@@ -167,7 +203,7 @@ const UserProfile = ({ onClose }) => {
             className="mb-2 block w-full border px-3 py-2 rounded"
           />
           <input
-            type="password"
+            type="text"
             name="confirmPassword"
             value={formData.confirmPassword}
             placeholder="Confirm New Password"
@@ -175,6 +211,7 @@ const UserProfile = ({ onClose }) => {
             className="mb-4 block w-full border px-3 py-2 rounded"
           />
 
+          {/* Submit button */}
           <button
             type="submit"
             className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"

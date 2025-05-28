@@ -1,24 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const OTPVerification = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [otp, setOtp] = useState('');
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const email = location.state?.email;
+
+  useEffect(() => {
+    if (!email) {
+      toast.error("Email not found. Please try logging in again.");
+      navigate('/login');
+    }
+  }, [email, navigate]);
 
   const handleOTPSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate OTP input
+
     if (!otp) {
       setError("Please enter the OTP.");
       return;
     }
 
+    setError(null);
+    setIsSubmitting(true);
+
     try {
-      // Send the OTP and email to your API endpoint for verification
       const response = await fetch('http://localhost:5000/api/auth/verifyOtp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,18 +39,18 @@ const OTPVerification = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
-        // If OTP is verified successfully, navigate to the home page or other desired route
-        console.log("OTP verified successfully", data);
-        navigate('/'); // redirect to home page after successful OTP verification
+        toast.success('Logged in successfully!', { autoClose: 2000 });
+        await sleep(2000);
+        navigate('/');
       } else {
-        // Show error message if OTP verification fails
-        setError(data.message);
+        setError(data.message || "Invalid OTP. Please try again.");
       }
     } catch (err) {
-      // Handle API errors
       setError("OTP verification failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -48,7 +61,7 @@ const OTPVerification = () => {
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm"
       >
         <h2 className="text-2xl font-semibold text-center mb-6">Enter OTP</h2>
-        
+
         <div className="mb-4">
           <input
             type="text"
@@ -60,16 +73,18 @@ const OTPVerification = () => {
             required
           />
         </div>
-        
-        {/* Display error message */}
+
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-        
+
         <div className="mt-6">
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isSubmitting}
+            className={`w-full py-2 rounded-lg text-lg text-white ${
+              isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
-            Verify OTP
+            {isSubmitting ? 'Verifying...' : 'Verify OTP'}
           </button>
         </div>
       </form>

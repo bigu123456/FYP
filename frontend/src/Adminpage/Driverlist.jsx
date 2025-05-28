@@ -71,7 +71,12 @@ const DriverList = () => {
                 onChange={handleSearch}
                 className="w-40 sm:w-48 pl-4 pr-10 py-2 bg-gray-800 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 placeholder:text-gray-300"
               />
-              <button className="absolute top-1 right-1 w-8 h-8 rounded-full bg-white flex items-center justify-center">
+              {/* Search button is decorative here */}
+              <button
+                type="button"
+                className="absolute top-1 right-1 w-8 h-8 rounded-full bg-white flex items-center justify-center"
+                aria-label="Search"
+              >
                 <svg
                   className="w-4 h-4 text-gray-800"
                   fill="none"
@@ -122,7 +127,7 @@ const DriverList = () => {
                 <h2 className="text-lg font-bold mb-2">{driver.name}</h2>
                 <p>📞 Phone: {driver.phone}</p>
                 <p>🪪 License: {driver.license_number}</p>
-                <p>💰 Price: ₹{driver.price_per_day || "N/A"} /day</p>
+                <p>💰 Price: ₹{driver.price_per_day ?? "N/A"} /day</p>
                 <p>
                   📧 Email:{" "}
                   <a
@@ -134,17 +139,15 @@ const DriverList = () => {
                 </p>
                 <p>
                   Availability:{" "}
-                  <span className={driver.availability ? "text-green-500" : "text-red-500"}>
+                  <span
+                    className={driver.availability ? "text-green-500" : "text-red-500"}
+                  >
                     {driver.availability ? "Available" : "Not Available"}
                   </span>
                 </p>
                 {driver.created_at && (
                   <p className="text-xs mt-1 text-gray-500 hover:text-white">
-<<<<<<< HEAD
                     Added: {new Date(driver.created_at).toLocaleDateString()}
-=======
-                    🕓 Added: {new Date(driver.created_at).toLocaleDateString()}
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
                   </p>
                 )}
 

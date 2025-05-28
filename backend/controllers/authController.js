@@ -4,19 +4,22 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pool = require("../db/Connection"); 
 
-// Register a new user
 const registerUser = async (req, res) => {
   const { name, email, password, contact_number, city, age } = req.body;
 
   try {
-    // Check if email or contact number exists
-    const existingUser = await pool.query(
-      "SELECT email, contact_number FROM users WHERE email = $1 OR contact_number = $2",
-      [email, contact_number]
-    );
+    // Check if email exists
+    const emailCheck = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
 
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ message: "Email or contact number already exists" });
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // Check if contact number exists
+    const numberCheck = await pool.query("SELECT * FROM users WHERE contact_number = $1", [contact_number]);
+
+    if (numberCheck.rows.length > 0) {
+      return res.status(400).json({ message: "Contact number already exists" });
     }
 
     // Hash the password and insert new user
@@ -33,6 +36,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+
 // Login a user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -44,13 +48,14 @@ const loginUser = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
+   
 
-    // Add the role to the JWT token
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      "jwt_secret_key",  // Store securely in env variable
-      { expiresIn: "7days" }
-    );
+  { userId: user.id, email: user.email, role: user.role },
+  process.env.JWT_SECRET_KEY,
+  {expiresIn :"1h"}
+  
+);
 
     res.status(200).json({ token });
   } catch (err) {

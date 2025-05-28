@@ -9,7 +9,8 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "jwt_secret_key");
+     
+   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY); 
     req.user = decoded;
     next();
   } catch (error) {
@@ -25,4 +26,3 @@ const isAdmin = (req, res, next) => {
 };
 
 module.exports = { verifyToken, isAdmin };
-984186443

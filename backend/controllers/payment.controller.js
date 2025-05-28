@@ -2,10 +2,7 @@ import pool from '../db/Connection.js';
 import { generateHmacSha256Hash } from '../utils/helper.js';
 import axios from 'axios';
 
-<<<<<<< HEAD
 // Initiate Payment
-=======
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 const initiatePayment = async (req, res) => {
   const {
     amount,
@@ -16,10 +13,6 @@ const initiatePayment = async (req, res) => {
     vehicleModel,
   } = req.body;
 
-<<<<<<< HEAD
-=======
-  // Validate required fields
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
   if (!amount || !userId || !paymentGateway || !productName || !productId || !vehicleModel) {
     return res.status(400).json({
       message: 'Missing required fields: amount, userId, paymentGateway, productName, productId, vehicleModel',
@@ -54,47 +47,27 @@ const initiatePayment = async (req, res) => {
     } else if (paymentGateway === 'khalti') {
       paymentConfig.url = process.env.KHALTI_PAYMENT_URL;
       paymentConfig.data = {
-<<<<<<< HEAD
         return_url: process.env.SUCCESS_URL,
+        failure_url: process.env.FAILURE_URL,
         website_url: 'http://localhost:3000',
         purchase_order_id: productId,
         purchase_order_name: productName,
         amount: amount * 100,
-        mobile: '9810205962',
+        mobile: '9810205962', // Replace with dynamic user input later
         product_identity: productId,
         product_name: productName,
-        failure_url: process.env.FAILURE_URL,
         public_key: process.env.KHALTI_PUBLIC_KEY,
-=======
-        amount: amount * 100,
-        mobile: 9810205962, // Optional: make this dynamic later
-        product_identity: productId,
-        product_name: productName,
-        return_url: process.env.SUCCESS_URL,
-        failure_url: process.env.FAILURE_URL,
-        public_key: process.env.KHALTI_PUBLIC_KEY,
-        website_url: 'http://localhost:3000',
-        purchase_order_id: productId,
-        purchase_order_name: productName,
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
       };
       paymentConfig.headers = {
         Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
         'Content-Type': 'application/json',
       };
       paymentConfig.responseHandler = (response) => response.data?.payment_url;
-<<<<<<< HEAD
-=======
 
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
     } else {
       return res.status(400).json({ message: 'Invalid payment gateway' });
     }
 
-<<<<<<< HEAD
-=======
-    // Call the payment gateway
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
     const payment = await axios.post(paymentConfig.url, paymentConfig.data, {
       headers: paymentConfig.headers,
     });
@@ -102,13 +75,8 @@ const initiatePayment = async (req, res) => {
     const paymentUrl = paymentConfig.responseHandler(payment);
     if (!paymentUrl) throw new Error('Payment URL is missing in the response');
 
-<<<<<<< HEAD
-    // Insert transaction into DB
-=======
-    // Insert transaction into PostgreSQL
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
-    const insertQuery = `
-      INSERT INTO transactions (
+    await pool.query(
+      `INSERT INTO transactions (
         userid,
         product_name,
         product_id,
@@ -116,27 +84,9 @@ const initiatePayment = async (req, res) => {
         amount,
         payment_gateway,
         status
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *;
-    `;
-
-    const values = [
-      userId,
-      productName,
-      productId,
-      vehicleModel,
-      amount,
-      paymentGateway,
-      'PENDING',
-    ];
-
-<<<<<<< HEAD
-    await pool.query(insertQuery, values);
-=======
-    const result = await pool.query(insertQuery, values);
-    console.log('Transaction inserted:', result.rows[0]);
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [userId, productName, productId, vehicleModel, amount, paymentGateway, 'PENDING']
+    );
 
     return res.send({ url: paymentUrl });
 
@@ -149,10 +99,7 @@ const initiatePayment = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 // Payment Status Check
-=======
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 const paymentStatus = async (req, res) => {
   const { product_id, pidx, status } = req.body;
 
@@ -165,28 +112,18 @@ const paymentStatus = async (req, res) => {
     }
 
     const { payment_gateway, amount } = transaction;
-<<<<<<< HEAD
-    let gatewayTransactionId = null;
-    let newStatus = 'FAILED';
-=======
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
     if (status === 'FAILED') {
       await pool.query(
         `UPDATE transactions SET status = $1, updated_at = NOW() WHERE product_id = $2`,
         ['FAILED', product_id]
       );
-<<<<<<< HEAD
       return res.status(200).json({ message: 'Transaction marked as FAILED', status: 'FAILED' });
     }
 
-=======
-      return res.status(200).json({ message: 'Transaction status updated to FAILED', status: 'FAILED' });
-    }
+    let newStatus = 'FAILED';
+    let gatewayTransactionId = null;
 
-    let paymentStatusCheck;
-
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
     if (payment_gateway === 'esewa') {
       const response = await axios.get(process.env.ESEWA_PAYMENT_STATUS_CHECK_URL, {
         params: {
@@ -195,11 +132,9 @@ const paymentStatus = async (req, res) => {
           transaction_uuid: product_id,
         },
       });
-
-<<<<<<< HEAD
-      const paymentStatusCheck = response.data;
-      newStatus = paymentStatusCheck.status === 'COMPLETE' ? 'COMPLETED' : 'FAILED';
-      gatewayTransactionId = paymentStatusCheck.referenceId || null;
+      const result = response.data;
+      newStatus = result.status === 'COMPLETE' ? 'COMPLETED' : 'FAILED';
+      gatewayTransactionId = result.referenceId || null;
 
     } else if (payment_gateway === 'khalti') {
       const response = await axios.post(
@@ -212,10 +147,9 @@ const paymentStatus = async (req, res) => {
           },
         }
       );
-
-      const paymentStatusCheck = response.data;
-      newStatus = paymentStatusCheck.status === 'Completed' ? 'COMPLETED' : 'FAILED';
-      gatewayTransactionId = paymentStatusCheck.pidx || null;
+      const result = response.data;
+      newStatus = result.status === 'Completed' ? 'COMPLETED' : 'FAILED';
+      gatewayTransactionId = result.pidx || null;
 
     } else {
       return res.status(400).json({ message: 'Invalid payment gateway' });
@@ -238,64 +172,7 @@ const paymentStatus = async (req, res) => {
     console.error('Error checking payment status:', error.message);
     return res.status(500).json({
       message: 'Payment status check failed',
-      error: error.message,
-=======
-      paymentStatusCheck = response.data;
-      const newStatus = paymentStatusCheck.status === 'COMPLETE' ? 'COMPLETED' : 'FAILED';
-
-      await pool.query(
-        `UPDATE transactions SET status = $1, updated_at = NOW() WHERE product_id = $2`,
-        [newStatus, product_id]
-      );
-
-      return res.status(200).json({
-        message: `Transaction status updated to ${newStatus}`,
-        status: newStatus,
-      });
-
-    } else if (payment_gateway === 'khalti') {
-      try {
-        const response = await axios.post(
-          process.env.KHALTI_VERIFICATION_URL,
-          { pidx },
-          {
-            headers: {
-              Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        paymentStatusCheck = response.data;
-
-      } catch (error) {
-        if (error.response?.status === 400) {
-          paymentStatusCheck = error.response.data;
-        } else {
-          console.error('Error verifying Khalti payment:', error.message);
-          throw error;
-        }
-      }
-
-      const newStatus = paymentStatusCheck.status === 'Completed' ? 'COMPLETED' : 'FAILED';
-      await pool.query(
-        `UPDATE transactions SET status = $1, updated_at = NOW() WHERE product_id = $2`,
-        [newStatus, product_id]
-      );
-
-      return res.status(200).json({
-        message: `Transaction status updated to ${newStatus}`,
-        status: newStatus,
-      });
-    }
-
-    return res.status(400).json({ message: 'Invalid payment gateway' });
-
-  } catch (error) {
-    console.error('Error during payment status check:', error.message);
-    return res.status(500).json({
-      message: 'Payment status check failed',
       error: error.response?.data || error.message,
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
     });
   }
 };

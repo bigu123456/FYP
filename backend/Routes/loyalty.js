@@ -14,11 +14,11 @@ async function updateLoyaltyPoints(userId) {
 
     // Determine bonus points based on the number of orders
     let bonusPoints = 0;
-    if (orderCount >= 25) {
+    if (orderCount >= 5) {
       bonusPoints = 500; // 500 points for 25+ orders
-    } else if (orderCount >= 10) {
+    } else if (orderCount >= 4) {
       bonusPoints = 250; // 250 points for 10-24 orders
-    } else if (orderCount >= 5) {
+    } else if (orderCount >= 2) {
       bonusPoints = 100; // 100 points for 5-9 orders
     }
 

@@ -16,7 +16,7 @@ const Header = () => {
     <div className="bg-orange-500 text-white flex justify-between p-4">
       <h2 className="text-lg font-bold">Dashboard</h2>
       <button onClick={handleLogout} className="flex items-center gap-2 hover:text-gray-300 transition">
-        <LogOut size={20} /> Logout
+        <LogOut size={20} /> GO to home page
       </button>
     </div>
   );

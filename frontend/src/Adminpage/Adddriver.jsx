@@ -43,24 +43,26 @@ const AddDriver = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { isValid, errors } = validateAddDriver(driver, image);
-    setErrorMessages(errors);
-    if (!isValid) return;
+  e.preventDefault();
+  const { isValid, errors } = validateAddDriver(driver, image);
+  setErrorMessages(errors);
+  if (!isValid) return;
 
-    try {
-      const formData = new FormData();
-      Object.keys(driver).forEach((key) => formData.append(key, driver[key]));
-      if (image) formData.append("image", image);
+  try {
+    const formData = new FormData();
+    Object.keys(driver).forEach((key) => formData.append(key, driver[key]));
+    if (image) formData.append("image", image);
 
-      await axios.post("http://localhost:5000/api/drivers", formData);
-      alert("Driver added successfully!");
-      handleReset();
-    } catch (error) {
-      console.error("Error adding driver:", error);
-      alert("An error occurred while adding the driver.");
-    }
-  };
+    await axios.post("http://localhost:5000/api/drivers", formData);
+    alert("Driver added successfully!");
+    handleReset();
+    navigate("/admin/Driverlist");  // <-- redirect here
+  } catch (error) {
+    console.error("Error adding driver:", error);
+    alert("An error occurred while adding the driver.");
+  }
+};
+
 
   return (
     <div className="flex min-h-screen overflow-x-hidden">

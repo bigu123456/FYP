@@ -5,6 +5,7 @@ import LoginPage from "./elements/LoginPage";
 import RegisterPage from "./elements/Register";
 import Contactus from "./elements/Contactus";
 import AboutUs from "./elements/Aboutus";
+import  ServicePage from "./elements/ServicePage";
 import OrderPage from "./elements/OrderPage";
 import Vehicleslists from "./elements/Vehicleslists";
 import SelectDriverPage from "./elements/SelectDriverPage";
@@ -18,12 +19,7 @@ import OrderHistory from "./elements/OrderHistory"; // or the correct path if di
 import UserProfile from "./elements/UserProfile";
 import LoyaltyDashboard from "./elements/LoyaltyDashboard";
 import RequestForm from "./elements/RequestForm"
-<<<<<<< HEAD
-
-import ServicePage from "./components/ServicePage";
-=======
 import Test from "./elements/Test";
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
 
 // Admin Pages
 import Admin from "./Adminpage/Admin";
@@ -55,15 +51,14 @@ const App = () => {
         <Route path="/vehicleslists" element={<Vehicleslists />} />
         <Route path="/contactus" element={<Contactus />} />
         <Route path ="/Aboutus" element={<AboutUs/>}/>
+         <Route path="/ServicePage" element={<ServicePage />} />
+
+
         <Route path="/order/:id" element={<OrderPage />} />
         <Route path="/select-driver/:id" element={<SelectDriverPage />} />
         
-<<<<<<< HEAD
-        <Route path ="ServicePage" element={<ServicePage/>} />
-=======
-        
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
-        
+      
+
        
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path ="Bookingpage" element={<Bookingpage/>}/>
@@ -77,13 +72,9 @@ const App = () => {
           <Route path ="/LoyaltyDashboard"element={<LoyaltyDashboard/>} />
          
           <Route path="RequestForm"element={<RequestForm/>} />
-<<<<<<< HEAD
+          <Route path="Test"element={<Test/>}/>      
          
-=======
-          <Route path="Test"element={<Test/>}/>
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
-         
-         
+       
         
 
 

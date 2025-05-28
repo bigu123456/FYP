@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Add a new vehicle with image upload and description
+// Add a new vehicle
 router.post("/vehicles", upload.single("image"), async (req, res) => {
   const { brand, model, category, type, fuel_type, rental_price, description } = req.body;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
@@ -32,10 +32,9 @@ router.post("/vehicles", upload.single("image"), async (req, res) => {
   }
 });
 
-// Endpoint to get all vehicles with availability
+// Get all vehicles with availability
 router.get("/vehicles", async (req, res) => {
   try {
-    // Fetch vehicles from the database
     const result = await pool.query(`
       SELECT 
         v.*, 
@@ -48,31 +47,14 @@ router.get("/vehicles", async (req, res) => {
       GROUP BY v.id
     `);
 
-    // Assign result.rows to vehicles
-    const vehicles = result.rows;  // This is where you assign the fetched rows
-<<<<<<< HEAD
-   
-=======
-    console.log(vehicles);
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
-
-  
-
-    // Send the vehicles data as a response
-    res.json(vehicles);  // Send the data to the frontend
+    res.json(result.rows);
   } catch (err) {
-    // Handle any errors and log them
     console.error("Error fetching vehicles:", err.message);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-
-
-
-
-
-// Endpoint to update a vehicle
+// Update a vehicle
 router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
   const { id } = req.params;
   const {
@@ -97,7 +79,7 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
       fuel_type,
       rental_price,
       description,
-      availability === "false" ? false : true, // ensure boolean
+      availability === "false" ? false : true,
     ];
 
     let query = `
@@ -131,8 +113,8 @@ router.put("/vehicles/:id", upload.single("image"), async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-<<<<<<< HEAD
-// Get a specific vehicle by ID
+
+// Get vehicle by ID
 router.get("/vehicles/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -149,6 +131,8 @@ router.get("/vehicles/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
+// Delete vehicle
 router.delete("/vehicles/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -165,9 +149,5 @@ router.delete("/vehicles/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
-=======
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522
-
 
 module.exports = router;

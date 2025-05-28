@@ -178,11 +178,8 @@ const LoginPage = () => {
                 Register Now
               </a>
             </div>
-            <p>Or</p>
-            <button className="w-full border-class flex items-center justify-center gap-2 pt-[16px] pb-[16px] text-[#676767] text-[18px] font-medium">
-              <img src={GoogleLogo} alt="Google" />
-              Continue with Google
-            </button>
+            
+           
           </div>
         </div>
         <div className="absolute w-[472px] h-screen bg-[#F34900] left-0 -z-10"></div>

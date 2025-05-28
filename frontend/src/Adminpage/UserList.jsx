@@ -7,6 +7,7 @@ const UserList = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [updatingUser, setUpdatingUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -68,6 +69,11 @@ const UserList = () => {
     }
   }, []);
 
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return <p className="text-center text-gray-600 mt-10">Loading...</p>;
   }
@@ -79,23 +85,30 @@ const UserList = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-auto" style={{ paddingLeft: "260px" }}>
-        {/* 👆 add paddingLeft same as Sidebar width (Sidebar is usually 256px/260px) */}
-
         {/* Header */}
         <Header />
 
         <div className="p-6">
-          <h2 className="text-2xl font-semibold mb-6 text-black">User List</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-black">User List</h2>
+            <input
+              type="text"
+              placeholder="Search by name or email"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="p-2 border rounded-md shadow-sm text-sm w-72 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            />
+          </div>
+
           {error && <p className="text-red-500 mb-4">{error}</p>}
 
           {/* User Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {users.length > 0 ? (
-              users.map((user) => (
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => (
                 <div
                   key={user.id}
                   className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-3 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:bg-orange-300"
-
                 >
                   <h3 className="text-xl font-bold mb-2">{user.name}</h3>
                   <p className="text-gray-700 mb-1">
@@ -120,21 +133,20 @@ const UserList = () => {
                       Change Role
                     </label>
                     <select
-  id={`role-${user.id}`}
-  value={user.role}
-  onChange={(e) => handleRoleChange(user.id, e.target.value)}
-  disabled={updatingUser === user.id}
-  className="w-28 p-1 border rounded-md text-sm bg-white text-gray-700 shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 cursor-pointer"
->
-  <option value="user">User</option>
-  <option value="admin">Admin</option>
-</select>
-
+                      id={`role-${user.id}`}
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      disabled={updatingUser === user.id}
+                      className="w-28 p-1 border rounded-md text-sm bg-white text-gray-700 shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 cursor-pointer"
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-600">No users found.</p>
+              <p className="text-gray-600">No matching users found.</p>
             )}
           </div>
         </div>

@@ -73,14 +73,7 @@ const Sidebar = () => {
             <UserCheck size={20} /> <span>Add Driver</span>
           </Link>
         </li>
-        <li className="py-2">
-          <Link
-            to="/admin/userrequest"
-            className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
-          >
-            <UserPlus size={20} /> <span>User Requests</span>
-          </Link>
-        </li>
+        
         <li className="py-2">
           <Link
             to="/payments"
@@ -91,7 +84,7 @@ const Sidebar = () => {
         </li>
         <li className="py-2">
           <Link
-            to="/admin/feedback"
+            to="/admin-feedback"
             className="flex items-center gap-3 p-2 hover:bg-orange-200 rounded text-white font-semibold"
           >
             <MessageCircle size={20} /> <span>Feedback</span>

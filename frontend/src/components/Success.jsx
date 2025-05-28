@@ -178,8 +178,4 @@ const Success = () => {
   );
 };
 
-<<<<<<< HEAD
 export default Success;
-=======
-export default Success;
->>>>>>> 11994a839c9610f18e58ba2e77ba621b379f2522

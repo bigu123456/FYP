@@ -17,6 +17,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const Payments = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -35,13 +36,13 @@ const Payments = () => {
 
   const formatMonth = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString("default", { month: "short" }); // e.g. Apr
+    return date.toLocaleString("default", { month: "short" });
   };
 
   const calculateTotalAmount = () => {
     return transactions
-      .filter(transaction => transaction.status === "COMPLETED")
-      .reduce((total, transaction) => total + parseFloat(transaction.amount), 0)
+      .filter((t) => t.status === "COMPLETED")
+      .reduce((total, t) => total + parseFloat(t.amount), 0)
       .toFixed(2);
   };
 
@@ -54,9 +55,9 @@ const Payments = () => {
   };
 
   const getPaymentStatusByMonthPieData = () => {
-    const statusMonthData = transactions.reduce((acc, transaction) => {
-      const month = formatMonth(transaction.created_at);
-      const key = `${transaction.status} - ${month}`;
+    const statusMonthData = transactions.reduce((acc, t) => {
+      const month = formatMonth(t.created_at);
+      const key = `${t.status} - ${month}`;
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
@@ -67,19 +68,21 @@ const Payments = () => {
 
     return {
       labels,
-      datasets: [
-        {
-          label: "Transactions",
-          data,
-          backgroundColor,
-        },
-      ],
+      datasets: [{ label: "Transactions", data, backgroundColor }],
     };
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // 🔍 Filtered transactions based on search
+  const filteredTransactions = transactions.filter((t) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      t.user_name?.toLowerCase().includes(query) ||
+      t.user_contact_number?.toLowerCase().includes(query) ||
+      t.product_name?.toLowerCase().includes(query)
+    );
+  });
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="flex h-screen">
@@ -89,12 +92,23 @@ const Payments = () => {
         <div className="container mx-auto py-6">
           <h2 className="text-2xl font-semibold mb-4">Payment Transactions</h2>
 
-          {/* Total Payment Amount */}
+          {/* 🔍 Search input */}
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search by name, phone, or product"
+              className="border px-4 py-2 rounded w-full md:w-96"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Total Payments */}
           <div className="text-xl font-semibold mb-6">
             <p>Total Payments: ₹{calculateTotalAmount()}</p>
           </div>
 
-          {/* Pie Chart for Status by Month */}
+          {/* Pie Chart */}
           <div className="mb-6" style={{ maxWidth: "700px", margin: "0 auto" }}>
             <Pie
               data={getPaymentStatusByMonthPieData()}
@@ -120,7 +134,7 @@ const Payments = () => {
             />
           </div>
 
-          {/* Payment Transactions Table */}
+          {/* Table */}
           <div className="overflow-x-auto bg-white shadow-md rounded-lg">
             <table className="min-w-full table-auto">
               <thead>
@@ -130,6 +144,7 @@ const Payments = () => {
                   <th className="px-4 py-2 text-left">User Name</th>
                   <th className="px-4 py-2 text-left">Phone Number</th>
                   <th className="px-4 py-2 text-left">Product</th>
+                  <th className="px-4 py-2 text-left">Transaction ID</th>
                   <th className="px-4 py-2 text-left">Vehicle Model</th>
                   <th className="px-4 py-2 text-left">Amount</th>
                   <th className="px-4 py-2 text-left">Payment Gateway</th>
@@ -138,24 +153,28 @@ const Payments = () => {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((transaction) => (
-                  <tr className="border-b" key={transaction.id}>
-                    <td className="px-4 py-2">{transaction.id}</td>
-                    <td className="px-4 py-2">{transaction.userid}</td>
-                    <td className="px-4 py-2">{transaction.user_name}</td>
-                    <td className="px-4 py-2">{transaction.user_contact_number}</td>
-                    <td className="px-4 py-2">{transaction.product_name}</td>
-                    <td className="px-4 py-2">{transaction.vehiclemodel}</td>
-                    <td className="px-4 py-2">{`₹${parseFloat(transaction.amount).toFixed(2)}`}</td>
-                    <td className="px-4 py-2">{transaction.payment_gateway}</td>
-                    <td className={`px-4 py-2 ${transaction.status === "COMPLETED" ? "text-green-500" : "text-red-500"}`}>
-                      {transaction.status === "COMPLETED" ? "Completed" : "Pending"}
+                {filteredTransactions.map((t) => (
+                  <tr className="border-b" key={t.id}>
+                    <td className="px-4 py-2">{t.id}</td>
+                    <td className="px-4 py-2">{t.userid}</td>
+                    <td className="px-4 py-2">{t.user_name}</td>
+                    <td className="px-4 py-2">{t.user_contact_number}</td>
+                    <td className="px-4 py-2">{t.product_name}</td>
+                    <td className="px-4 py-2">{t.product_id}</td>
+                    <td className="px-4 py-2">{t.vehiclemodel}</td>
+                    <td className="px-4 py-2">{`₹${parseFloat(t.amount).toFixed(2)}`}</td>
+                    <td className="px-4 py-2">{t.payment_gateway}</td>
+                    <td className={`px-4 py-2 ${t.status === "COMPLETED" ? "text-green-500" : "text-red-500"}`}>
+                      {t.status === "COMPLETED" ? "Completed" : "Pending"}
                     </td>
-                    <td className="px-4 py-2">{new Date(transaction.created_at).toLocaleString()}</td>
+                    <td className="px-4 py-2">{new Date(t.created_at).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {filteredTransactions.length === 0 && (
+              <div className="p-4 text-center text-gray-500">No transactions found.</div>
+            )}
           </div>
         </div>
       </div>
